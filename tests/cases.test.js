@@ -66,3 +66,8 @@ test("cas C: a la consulta, cap símptoma característic que contradigui el per�
   assert.ok(!c3a.cards.some(k => /borrosa|formigueig/i.test(k.t)));
   assert.match(CASES.C.phases[2].items.find(it => it.id === "C3c").prompt, /[Aa]bans de l'examen/);
 });
+
+test("la justificació cita l'apartat on està etiquetada la pregunta", () => {
+  for (const id of ["A","B","C"]) CASES[id].phases.forEach(p => p.items.forEach(it =>
+    assert.ok(it.why.includes(it.sec), `${it.id}: sec ${it.sec} però «${it.why.slice(-14)}»`)));
+});
