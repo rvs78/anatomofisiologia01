@@ -49,9 +49,13 @@
     // cara: ulls, celles i boca preocupada
     const dark = mat("#26302c", {roughness:.3});
     [-1, 1].forEach(s => {
-      head.add(mesh(new T.SphereGeometry(.013, 12, 8), dark, s * .038, .012, .098, false));
+      head.add(mesh(new T.SphereGeometry(.017, 16, 12), mat("#fbfbf8", {roughness:.2}), s * .038, .012, .092, false));
+      head.add(mesh(new T.SphereGeometry(.01, 12, 8), mat(p.eyes || "#5b3a1e", {roughness:.2}), s * .038, .012, .106, false));
+      head.add(mesh(new T.SphereGeometry(.005, 8, 6), dark, s * .038, .012, .114, false));
+      const ear = mesh(new T.SphereGeometry(.026, 12, 10), skin, s * .1, 0, 0, false); ear.scale.set(.45, 1, .8); head.add(ear);
       const brow = mesh(box(.04, .007, .008), mat(p.hair), s * .04, .045, .1, false); brow.rotation.z = s * .22; head.add(brow);
     });
+    const nose = mesh(new T.SphereGeometry(.018, 12, 10), skin, 0, -.018, .108, false); nose.scale.set(.8, 1.1, 1); head.add(nose);
     const mouth = mesh(new T.TorusGeometry(.024, .005, 6, 16, Math.PI), mat("#8a3b2e"), 0, opt.smile ? -.04 : -.05, .1, false); if (opt.smile) mouth.rotation.z = Math.PI; head.add(mouth);
     if (p.sex === "f") [-1, 1].forEach(s => { const ch = mesh(new T.SphereGeometry(.02, 12, 8), mat("#e9877a", {transparent:true, opacity:.55}), s * .062, -.02, .085, false); ch.scale.z = .4; head.add(ch); });
     if (p.beard){ const b = mesh(new T.SphereGeometry(.1, 24, 12, 0, Math.PI * 2, Math.PI * .55, Math.PI * .45), mat(p.hair, {roughness:.95}), 0, -.005, .012); head.add(b); }
@@ -130,7 +134,8 @@
     holder.appendChild(cv);
     const scene = new T.Scene(); scene.background = new T.Color(cfg.bg || "#e9f0ec"); scene.fog = new T.Fog(cfg.bg || "#e9f0ec", 7, 16);
     const camera = new T.PerspectiveCamera(cfg.fov || 45, 2, .05, 50);
-    scene.add(new T.HemisphereLight("#ffffff", "#b9a383", .9));
+    if (T.RoomEnvironment){ const pm = new T.PMREMGenerator(renderer); scene.environment = pm.fromScene(new T.RoomEnvironment(), .04).texture; pm.dispose(); }
+    scene.add(new T.HemisphereLight("#ffffff", "#b9a383", T.RoomEnvironment ? .45 : .9));
     const sun = new T.DirectionalLight("#ffffff", .9); sun.position.set(2.5, 4, 3); sun.castShadow = true;
     sun.shadow.mapSize.set(1024, 1024); Object.assign(sun.shadow.camera, {left:-4, right:4, top:4, bottom:-4, near:.5, far:12}); sun.shadow.bias = -.0005; scene.add(sun);
 
@@ -236,7 +241,13 @@
   /* ---------- Sala comuna: terra i parets */
   function room(ctx, o){
     const {scene, mesh, box, mat} = ctx;
-    const floor = mesh(new T.PlaneGeometry(14, 14), mat(o.floor || "#d9c8ad", {roughness:.9}), 0, 0, 0, false); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+    const tiles = ctx.canvasTex(512, 512, (g, W, H) => { g.fillStyle = o.floor || "#d9c8ad"; g.fillRect(0, 0, W, H);
+      for (let y = 0; y < 4; y++) for (let x = 0; x < 4; x++){ g.fillStyle = `rgba(255,255,255,${((x * 7 + y * 3) % 5) * .018})`; g.fillRect(x * 128 + 3, y * 128 + 3, 122, 122); }
+      g.strokeStyle = "rgba(0,0,0,.12)"; g.lineWidth = 4; for (let k = 0; k <= 4; k++){ g.beginPath(); g.moveTo(k * 128, 0); g.lineTo(k * 128, H); g.stroke(); g.beginPath(); g.moveTo(0, k * 128); g.lineTo(W, k * 128); g.stroke(); } });
+    tiles.wrapS = tiles.wrapT = T.RepeatWrapping; tiles.repeat.set(10, 10);
+    const floor = mesh(new T.PlaneGeometry(14, 14), new T.MeshStandardMaterial({map:tiles, roughness:.35, metalness:0}), 0, 0, 0, false); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+    const ceil = mesh(new T.PlaneGeometry(14, 14), mat("#f6f8f7"), 0, 3.2, 0, false); ceil.rotation.x = Math.PI / 2; scene.add(ceil);
+    [[-1.6, -1], [1.6, -1], [-1.6, 1.2], [1.6, 1.2]].forEach(([x, z]) => scene.add(mesh(box(1.1, .03, .5), new T.MeshStandardMaterial({color:"#ffffff", emissive:"#fffbe8", emissiveIntensity:1.2}), x, 3.18, z, false)));
     scene.add(mesh(box(14, 4, .1), mat(o.wall || "#e3eee9"), 0, 2, o.back || -3.2, false));
     [-1, 1].forEach(s => scene.add(mesh(box(.1, 4, 8), mat(o.wall || "#e3eee9"), s * (o.side || 4.5), 2, 0, false)));
   }
@@ -260,6 +271,19 @@
             const m = labelBox(.26, hgt, .16, b[0], b[1], b[2]); m.position.set(-3 + i * .35, y + hgt / 2, -3.1); m.castShadow = true; scene.add(m);
           }
         }
+        // rètol, aparador amb llum de carrer, plantes i flascons
+        const sign = ctx.canvasTex(512, 96, (g, W, H) => { g.fillStyle = "#0b6e4b"; g.fillRect(0, 0, W, H); g.fillStyle = "#ffffff"; g.font = "bold 58px sans-serif"; g.textAlign = "center"; g.fillText(opts.signText || "FARMÀCIA", W / 2, 70); });
+        scene.add(mesh(new T.PlaneGeometry(2.2, .42), new T.MeshStandardMaterial({map:sign, emissive:"#ffffff", emissiveMap:sign, emissiveIntensity:.35}), -.6, 2.72, -3.13, false));
+        const street = ctx.canvasTex(256, 256, (g, W, H) => { const gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, "#bfe3ff"); gr.addColorStop(.65, "#eaf6ff"); gr.addColorStop(.66, "#c9c2b6"); gr.addColorStop(1, "#a9a39a"); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+          g.fillStyle = "rgba(90,120,100,.5)"; [30, 110, 190].forEach(x => { g.fillRect(x, 90, 34, 80); g.beginPath(); g.arc(x + 17, 80, 34, 0, Math.PI * 2); g.fill(); }); });
+        [-1, 1].forEach(sd => { const w = mesh(new T.PlaneGeometry(2.4, 2.1), new T.MeshBasicMaterial({map:street}), sd * 4.44, 1.45, -1.2, false); w.rotation.y = -sd * Math.PI / 2; scene.add(w);
+          scene.add(mesh(box(.06, 2.2, 2.5), new T.MeshStandardMaterial({color:"#dff3ff", transparent:true, opacity:.18, roughness:.05, metalness:.1}), sd * 4.4, 1.45, -1.2, false)); });
+        const plant = (x, z) => { const pl = new T.Group(); pl.position.set(x, 0, z);
+          pl.add(mesh(new T.CylinderGeometry(.18, .14, .36, 20), mat("#c97d3d", {roughness:.7}), 0, .18, 0));
+          [[0, .6, 0, .2], [.12, .5, .06, .15], [-.12, .52, -.04, .16], [0, .78, .05, .13]].forEach(([a, b, c, r]) => pl.add(mesh(new T.SphereGeometry(r, 16, 12), mat("#4f9a5b", {roughness:.8}), a, b, c)));
+          scene.add(pl); };
+        plant(-3.6, -2.6); plant(3.6, -2.6);
+        for (let i = 0; i < 9; i++){ const bt = mesh(new T.CylinderGeometry(.045, .05, .2, 16), new T.MeshStandardMaterial({color:["#8fd3b6", "#f2b880", "#c7a5e6", "#86b5f0"][i % 4], roughness:.15, metalness:0, transparent:true, opacity:.9}), -3 + i * .7, 2.47, -3.1); scene.add(bt); }
         // creu verda lluminosa
         const cross = new T.Group(); cross.position.set(2.3, 2.3, -3.12);
         const crossMat = new T.MeshStandardMaterial({color:"#2bd67b", emissive:"#2bd67b", emissiveIntensity:1.4});
@@ -319,7 +343,7 @@
           const m = agent(id); m.position.set(x, 1.1, .1); m.scale.setScalar(1.25); m.userData.pickId = id; scene.add(m);
           pickables.push(m); models.push({id, m, ring});
           const anchor = new T.Object3D(); anchor.position.set(x, .93, .2); scene.add(anchor);
-          labels.push({obj:anchor, text:AGENT_NAMES[id] || id, cls:"agent", onClick: opts.onPick ? () => opts.onPick(id) : null});
+          labels.push({obj:anchor, text:((opts.names && opts.names.agents) || AGENT_NAMES)[id] || AGENT_NAMES[id] || id, cls:"agent", onClick: opts.onPick ? () => opts.onPick(id) : null});
         });
         const mark = sel => models.forEach(o => { o.ring.visible = o.id === sel; });
         mark(opts.selected);
@@ -363,7 +387,7 @@
           const halo = mesh(new T.SphereGeometry(.05, 16, 12), new T.MeshBasicMaterial({color:"#0e8a5f", transparent:true, opacity:.25, depthWrite:false}), 0, 0, 0, false);
           g.add(dot, halo); g.userData.pickId = s; scene.add(g); pickables.push(g); spots.push({s, g, dotM, halo});
         });
-        const NAMES = window.SCENES ? SCENES.SPOT_NAMES : {};
+        const NAMES = (opts.names && opts.names.spots) || (window.SCENES ? SCENES.SPOT_NAMES : {});
         const SIDE = {cap:"right", galta:null, gola:"left", coll:"right", pit:"right", braç:"left", abdomen:"right", cos:"right", peus:"left"};
         const mkLabels = seen => spots.map(o => ({obj:o.g, side:SIDE[o.s], text:(seen.includes(o.s) ? "✓ " : "") + (NAMES[o.s] || o.s), cls:seen.includes(o.s) ? "seen" : "todo", above:true, onClick:() => opts.onSpot(o.s)}));
         let seen = opts.seen.slice();
@@ -382,7 +406,8 @@
   }
 
   /* ---------- 4 · Sala de proves */
-  function testsRoom(container){
+  function testsRoom(container, opts){
+    opts = opts || {};
     return createStage(container, {
       label:"Sala de proves en 3D: tubs d'analítica, negatoscopi amb una radiografia i monitor d'ECG.",
       hint:"Arrossega per girar · roda o pessic per apropar",
@@ -414,10 +439,12 @@
         scene.add(rack);
         const cen = mesh(new T.CylinderGeometry(.15, .17, .18, 32), mat("#dfe6f1", {roughness:.3}), .95, 1.02, -.3); scene.add(cen);
         const lid = mesh(new T.CylinderGeometry(.13, .13, .02, 32), mat("#3c4a63", {roughness:.3}), .95, 1.12, -.3); scene.add(lid);
-        const labels = [[lb, "Negatoscopi"], [mon, "Monitor d'ECG"], [rack, "Tubs d'analítica"], [cen, "Centrífuga"]].map(([obj, text]) => ({obj, text, cls:"info", above:true}));
+        const DEV = (opts.names && opts.names.devices) || {};
+        const labels = [[lb, "Negatoscopi"], [mon, "Monitor d'ECG"], [rack, "Tubs d'analítica"], [cen, "Centrífuga"]].map(([obj, key]) => ({obj, text:"ⓘ " + (DEV[key] || key), cls:"info dev", above:true, onClick:opts.onDevice ? () => opts.onDevice(key) : null}));
+        [[lb, "Negatoscopi"], [mon, "Monitor d'ECG"], [rack, "Tubs d'analítica"], [cen, "Centrífuga"]].forEach(([o, k]) => { o.userData.pickId = k; });
         let x0 = 0;
         return {
-          labels,
+          labels, pickables:[lb, mon, rack, cen], onPick:k => opts.onDevice && opts.onDevice(k),
           tick(t){
             const g = ecg.userData.ctx, W = 256, H = 128; const x = Math.floor((t * 90) % W);
             g.fillStyle = "#0f2a22"; g.fillRect(x, 0, 14, H);

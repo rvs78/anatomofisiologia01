@@ -5,7 +5,7 @@
   var login = document.getElementById("login"), app = document.getElementById("app");
   var form = document.getElementById("lgForm"), err = document.getElementById("lgErr");
   applyPrefs();
-  document.getElementById("lgArt").innerHTML = SCENES.counterArt();
+  document.getElementById("lgArt").innerHTML = SCENES.technicianArt(); applyStatic();
   function hex(buf){ return Array.prototype.map.call(new Uint8Array(buf), function(b){ return ("0" + b.toString(16)).slice(-2); }).join(""); }
   function enter(user){
     login.hidden = true; app.hidden = false;
@@ -21,10 +21,10 @@
     e.preventDefault();
     var email = RA3.normEmail(document.getElementById("lgEmail").value);
     var pass = document.getElementById("lgPass").value;
-    if (!RA3.isValidEmail(email)) { err.textContent = "Escriu el teu correu de l'institut. Ha d'acabar en @isvh.cat."; document.getElementById("lgEmail").focus(); return; }
-    if (!window.crypto || !crypto.subtle) { err.textContent = "Aquest navegador no pot validar l'accés. Fes servir Chrome, Edge, Firefox o Safari actualitzats."; return; }
+    if (!RA3.isValidEmail(email)) { err.textContent = t("errEmail"); document.getElementById("lgEmail").focus(); return; }
+    if (!window.crypto || !crypto.subtle) { err.textContent = t("errCrypto"); return; }
     crypto.subtle.digest("SHA-256", new TextEncoder().encode(pass)).then(function(buf){
-      if (hex(buf) !== RA3.PASS_SHA256) { err.textContent = "La contrasenya no és correcta. Torna-ho a provar."; document.getElementById("lgPass").select(); return; }
+      if (hex(buf) !== RA3.PASS_SHA256) { err.textContent = t("errPass"); document.getElementById("lgPass").select(); return; }
       err.textContent = "";
       try { sessionStorage.setItem(SKEY, email); } catch(e) {}
       enter(email);

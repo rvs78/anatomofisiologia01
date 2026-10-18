@@ -109,20 +109,28 @@
   }
 
   /* ---------- DAFO */
-  function dafo(stats, trapIds, hintsCount, COMPS, TRAPS){
-    const F = [], D = [], O = [], A = [];
+  const DAFO_TXT = {
+    ca:{strong:(t, p) => t + ": domines aquest contingut (" + p + "% d'encert).", weak:(t, p) => t + ": encara costa (" + p + "% d'encert).",
+        review:(t, s) => "Repassa «" + t + "» a l'apartat " + s + " dels apunts abans de la prova del 23/10.",
+        hints:n => "Dependència de les ajudes: has obert " + n + " ajudes. A la prova no n'hi haurà.",
+        F:"Has completat tot el cas clínic, de la farmàcia al tractament.", D:"Cap competència per sota del 50%. Mantén el ritme de repàs.",
+        O:"Fes la infografia del dossier amb una altra malaltia per consolidar-ho.", A:"Cap error de concepte greu. Vigila de no confiar-te el dia de la prova."},
+    es:{strong:(t, p) => t + ": dominas este contenido (" + p + "% de acierto).", weak:(t, p) => t + ": aún te cuesta (" + p + "% de acierto).",
+        review:(t, s) => "Repasa «" + t + "» en el apartado " + s + " de los apuntes antes de la prueba del 23/10.",
+        hints:n => "Dependencia de las ayudas: has abierto " + n + " ayudas. En la prueba no habrá.",
+        F:"Has completado todo el caso clínico, de la farmacia al tratamiento.", D:"Ninguna competencia por debajo del 50%. Mantén el ritmo de repaso.",
+        O:"Haz la infografía del dosier con otra enfermedad para consolidarlo.", A:"Ningún error de concepto grave. Cuidado con confiarte el día de la prueba."}
+  };
+  function dafo(stats, trapIds, hintsCount, COMPS, TRAPS, lang){
+    const L = DAFO_TXT[lang === "es" ? "es" : "ca"], F = [], D = [], O = [], A = [];
     Object.keys(stats).forEach(k => {
-      const c = COMPS[k] || {t:k, sec:""}, r = stats[k].max ? stats[k].got / stats[k].max : 1;
-      if (r >= 0.8) F.push(c.t + ": domines aquest contingut (" + Math.round(r * 100) + "% d'encert).");
-      else if (r < 0.5) D.push(c.t + ": encara costa (" + Math.round(r * 100) + "% d'encert).");
-      if (r < 0.8) O.push("Repassa «" + c.t + "» a l'apartat " + c.sec + " dels apunts abans de la prova del 23/10.");
+      const c = COMPS[k] || {t:k, sec:""}, r = stats[k].max ? stats[k].got / stats[k].max : 1, p = Math.round(r * 100);
+      if (r >= 0.8) F.push(L.strong(c.t, p)); else if (r < 0.5) D.push(L.weak(c.t, p));
+      if (r < 0.8) O.push(L.review(c.t, c.sec));
     });
     (trapIds || []).forEach(t => { if (TRAPS[t]) A.push(TRAPS[t]); });
-    if (hintsCount >= 3) A.push("Dependència de les ajudes: has obert " + hintsCount + " ajudes. A la prova no n'hi haurà.");
-    if (!F.length) F.push("Has completat tot el cas clínic, de la farmàcia al tractament.");
-    if (!D.length) D.push("Cap competència per sota del 50%. Mantén el ritme de repàs.");
-    if (!O.length) O.push("Fes la infografia del dossier amb una altra malaltia per consolidar-ho.");
-    if (!A.length) A.push("Cap error de concepte greu. Vigila de no confiar-te el dia de la prova.");
+    if (hintsCount >= 3) A.push(L.hints(hintsCount));
+    if (!F.length) F.push(L.F); if (!D.length) D.push(L.D); if (!O.length) O.push(L.O); if (!A.length) A.push(L.A);
     return {F, D, O, A};
   }
 

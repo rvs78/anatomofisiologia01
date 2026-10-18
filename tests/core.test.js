@@ -113,3 +113,11 @@ test("exercici d'ordenar", () => {
   assert.equal(RA3.itemErrors(ord, ["1","2","3","4"]), 0);
   assert.equal(RA3.itemDelta(ord, undefined), 0);
 });
+
+test("perfil en castellà", () => {
+  const COMPS = {etiologia:{t:"Etiología", sec:"3.2"}};
+  const d = RA3.dafo({etiologia:{got:30,max:100}}, [], 4, COMPS, {}, "es");
+  assert.ok(d.D[0].includes("Etiología") && /acierto/.test(d.D[0]));
+  assert.ok(d.O[0].startsWith("Repasa"));
+  assert.ok(d.A.some(s => /ayudas/.test(s)));
+});

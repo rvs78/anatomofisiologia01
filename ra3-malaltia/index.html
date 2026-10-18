@@ -2,78 +2,92 @@
 <html lang="ca">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-cS+cCVTv4RIv2PdUhjVfY/p7kN2KGnQNdpvxg6Bngho='; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Fks7wAemCnG6gPll97gMaHoomHdSbWXDgMpIln6kxdI='; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3E%3Cpath fill=%27%230e8a5f%27 d=%27M9 2h6v7h7v6h-7v7H9v-7H2V9h7z%27/%3E%3C/svg%3E">
 <meta name="robots" content="noindex, nofollow">
 <meta name="description" content="Activitat gamificada del RA3 La malaltia: un cas clínic des del taulell de la farmàcia fins al tractament. CFGM Farmàcia i Parafarmàcia.">
 <script>
 /* Si el navegador o GitHub Pages serveixen una versió antiga, es carrega la nova */
-window.APP_VERSION = "4";
+window.APP_VERSION = "5";
 (function(){ try { fetch("version.json?t=" + Date.now(), {cache:"no-store"}).then(function(r){ return r.json(); }).then(function(j){ if (j && j.v && j.v !== window.APP_VERSION && location.search.indexOf("v=" + j.v) < 0) location.replace(location.pathname + "?v=" + j.v); }).catch(function(){}); } catch(e) {} })();
 </script>
 <title>El cas del taulell · RA3 La malaltia</title>
-<link rel="stylesheet" href="css/app.css?v=4">
+<link rel="stylesheet" href="css/app.css?v=5">
 </head>
 <body>
 
 <section class="login" id="login" aria-labelledby="lgTitle">
   <div class="lgart" aria-hidden="true" id="lgArt"></div>
   <form class="lgcard" id="lgForm" novalidate>
-    <p class="kicker">MP0061 Anatomofisiologia i patologia bàsiques · RA3</p>
-    <h1 class="ptitle" id="lgTitle">El cas del taulell</h1>
-    <p class="lead">Arriba un pacient a la farmàcia. Acompanya'l de la primera pregunta fins al tractament.</p>
-    <label class="fl" for="lgEmail">Correu de l'institut</label>
+    <p class="kicker"><span data-i18n="kicker">MP0061 Anatomofisiologia i patologia bàsiques · RA3</span> <button type="button" class="btn ghost small langBtn">ES</button></p>
+    <h1 class="ptitle" id="lgTitle" data-i18n="brand">El cas del taulell</h1>
+    <p class="lead" data-i18n="lead">Arriba un pacient a la farmàcia. Acompanya'l de la primera pregunta fins al tractament.</p>
+    <label class="fl" for="lgEmail" data-i18n="email">Correu de l'institut</label>
     <input type="email" id="lgEmail" autocomplete="username" inputmode="email" placeholder="nom.cognom@isvh.cat" required>
-    <label class="fl" for="lgPass">Contrasenya</label>
+    <label class="fl" for="lgPass" data-i18n="pass">Contrasenya</label>
     <input type="password" id="lgPass" autocomplete="current-password" required>
     <p class="lgerr" id="lgErr" role="alert"></p>
-    <button type="submit" class="btn big">Entra a la farmàcia</button>
-    <p class="small muted">Només per a l'alumnat amb correu @isvh.cat. La contrasenya te la dona el professorat.</p>
+    <button type="submit" class="btn big" data-i18n="enter">Entra a la farmàcia</button>
+    <p class="small muted" data-i18n="note">Només per a l'alumnat amb correu @isvh.cat. La contrasenya te la dona el professorat.</p>
   </form>
 </section>
 
 <div id="app" hidden>
   <header class="bar">
-    <div class="brand"><svg class="cross" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 2h6v7h7v6h-7v7H9v-7H2V9h7z"/></svg><b>El cas del taulell</b></div>
+    <div class="brand"><svg class="cross" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 2h6v7h7v6h-7v7H9v-7H2V9h7z"/></svg><b data-i18n="brand">El cas del taulell</b></div>
     <ol class="steps" id="steps" aria-label="Fases de l'activitat"></ol>
     <div class="score" id="score" aria-live="polite"></div>
     <div class="tools">
       <button type="button" class="btn ghost small" id="a11yBtn" aria-expanded="false" aria-controls="a11y">Aa</button>
+      <button type="button" class="btn ghost small langBtn">ES</button>
       <span class="who" id="who"></span>
-      <button type="button" class="btn ghost small" id="logout">Surt</button>
+      <button type="button" class="btn ghost small" id="logout" data-i18n="logout">Surt</button>
     </div>
     <div class="a11y" id="a11y" hidden role="dialog" aria-label="Opcions d'accessibilitat">
-      <h2>Opcions de lectura</h2>
-      <fieldset><legend>Mida del text</legend><div class="seg">
-        <label><input type="radio" name="size" value="m"> Normal</label>
-        <label><input type="radio" name="size" value="l"> Gran</label>
-        <label><input type="radio" name="size" value="xl"> Molt gran</label></div></fieldset>
-      <fieldset><legend>Tipus de lletra</legend><div class="seg">
-        <label><input type="radio" name="font" value="atkinson"> Molt llegible</label>
-        <label><input type="radio" name="font" value="lexend"> Lectura fàcil</label></div></fieldset>
-      <fieldset><legend>Contrast</legend><div class="seg">
-        <label><input type="radio" name="contrast" value="normal"> Normal</label>
-        <label><input type="radio" name="contrast" value="high"> Alt</label></div></fieldset>
-      <fieldset><legend>Animacions</legend><div class="seg">
-        <label><input type="radio" name="motion" value="on"> Sí</label>
-        <label><input type="radio" name="motion" value="off"> No</label></div></fieldset>
-      <fieldset><legend>Escenes 3D</legend><div class="seg">
-        <label><input type="radio" name="d3" value="on"> Sí</label>
-        <label><input type="radio" name="d3" value="off"> No (ordinadors lents)</label></div></fieldset>
-      <button type="button" class="btn small" id="a11yClose">Fet</button>
+      <h2 data-i18n="a11yTitle">Opcions de lectura</h2>
+      <fieldset><legend data-i18n="size">Mida del text</legend><div class="seg">
+        <label><input type="radio" name="size" value="m"> <span data-i18n="sNormal">Normal</span></label>
+        <label><input type="radio" name="size" value="l"> <span data-i18n="sL">Gran</span></label>
+        <label><input type="radio" name="size" value="xl"> <span data-i18n="sXL">Molt gran</span></label></div></fieldset>
+      <fieldset><legend data-i18n="font">Tipus de lletra</legend><div class="seg">
+        <label><input type="radio" name="font" value="atkinson"> <span data-i18n="fA">Molt llegible</span></label>
+        <label><input type="radio" name="font" value="lexend"> <span data-i18n="fL">Lectura fàcil</span></label></div></fieldset>
+      <fieldset><legend data-i18n="contrast">Contrast</legend><div class="seg">
+        <label><input type="radio" name="contrast" value="normal"> <span data-i18n="cN">Normal</span></label>
+        <label><input type="radio" name="contrast" value="high"> <span data-i18n="cH">Alt</span></label></div></fieldset>
+      <fieldset><legend data-i18n="motion">Animacions</legend><div class="seg">
+        <label><input type="radio" name="motion" value="on"> <span data-i18n="yes">Sí</span></label>
+        <label><input type="radio" name="motion" value="off"> <span data-i18n="no">No</span></label></div></fieldset>
+      <fieldset><legend data-i18n="d3">Escenes 3D</legend><div class="seg">
+        <label><input type="radio" name="d3" value="on"> <span data-i18n="yes">Sí</span></label>
+        <label><input type="radio" name="d3" value="off"> <span data-i18n="d3off">No (ordinadors lents)</span></label></div></fieldset>
+      <fieldset><legend data-i18n="sound">So en encertar i fallar</legend><div class="seg">
+        <label><input type="radio" name="sound" value="on"> <span data-i18n="yes">Sí</span></label>
+        <label><input type="radio" name="sound" value="off"> <span data-i18n="no">No</span></label></div></fieldset>
+      <button type="button" class="btn small" id="a11yClose" data-i18n="done">Fet</button>
     </div>
   </header>
   <main id="main" tabindex="-1"></main>
 </div>
 
 <script src="vendor/three.min.js"></script>
+<script src="vendor/RoomEnvironment.js"></script>
 <script src="vendor/gsap.min.js"></script>
-<script src="js/core.js?v=4"></script>
-<script src="js/cases.js?v=4"></script>
-<script src="js/scenes.js?v=4"></script>
-<script src="js/stage3d.js?v=4"></script>
-<script src="js/app.js?v=4"></script>
-<script src="js/login.js?v=4"></script>
+<script src="js/core.js?v=5"></script>
+<script src="js/tests-info.js?v=5"></script>
+<script src="js/extra/extra-A.js?v=5"></script>
+<script src="js/extra/extra-B.js?v=5"></script>
+<script src="js/extra/extra-C.js?v=5"></script>
+<script src="js/cases.js?v=5"></script>
+<script src="js/i18n/es-shared.js?v=5"></script>
+<script src="js/i18n/es-A.js?v=5"></script>
+<script src="js/i18n/es-B.js?v=5"></script>
+<script src="js/i18n/es-C.js?v=5"></script>
+<script src="js/diabetes.js?v=5"></script>
+<script src="js/scenes.js?v=5"></script>
+<script src="js/stage3d.js?v=5"></script>
+<script src="js/app.js?v=5"></script>
+<script src="js/login.js?v=5"></script>
 </body>
 </html>

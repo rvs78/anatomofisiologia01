@@ -2,9 +2,9 @@
    Tot el contingut surt de docs/ra3-contingut.md (apunts del docent, apartats 3.1–3.6).
    Cada fase suma 200 punts (ho comprova tests/cases.test.js). */
 (function(root, factory){
-  if (typeof module === "object" && module.exports) module.exports = factory();
-  else root.RA3_CASES = factory();
-})(typeof self !== "undefined" ? self : this, function(){
+  if (typeof module === "object" && module.exports) module.exports = factory({A:require("./extra/extra-A.js"), B:require("./extra/extra-B.js"), C:require("./extra/extra-C.js")});
+  else root.RA3_CASES = factory(root.RA3_EXTRA || {});
+})(typeof self !== "undefined" ? self : this, function(EXTRA){
   "use strict";
 
   const COMPS = {
@@ -16,7 +16,8 @@
     exploracio:   {t:"Anamnesi i exploració física", sec:"3.5"},
     proves:       {t:"Diagnòstic i proves complementàries", sec:"3.5"},
     tractament:   {t:"Pronòstic i tractament", sec:"3.5"},
-    farmacia:     {t:"Paper del tècnic al taulell", sec:"3.5"}
+    farmacia:     {t:"Paper del tècnic al taulell", sec:"3.5"},
+    terminologia: {t:"Terminologia mèdica", sec:"3.6"}
   };
 
   const TRAPS = {
@@ -357,6 +358,17 @@
       ]}
     ]
   };
+
+  /* Versió 2: les preguntes originals valen la meitat i les noves (extra/extra-X.js) sumen l'altra meitat de cada fase */
+  function halve(it){
+    if (it.type === "tests") it.tests.forEach(x => { x.pts = x.pts / 2; });
+    else it.pts = it.pts / 2;
+  }
+  [A, B, C].forEach(c => {
+    const ex = EXTRA[c.id];
+    c.phases.forEach((p, i) => { p.items.forEach(halve); if (ex) p.items.push(...ex.phases[i]); });
+    if (ex && ex.tests) c.phases[3].items.find(it => it.type === "tests").tests.push(...ex.tests);
+  });
 
   return {CASES:{A, B, C}, COMPS, TRAPS, PHASES, HINTS};
 });

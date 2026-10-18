@@ -58,6 +58,51 @@
       <g transform="translate(520 226)"><rect width="34" height="26" rx="3" fill="#0e8a5f"/><path d="M13 8h8v4h4v6h-4v4h-8v-4H9v-6h4z" fill="#fff"/></g>
     </svg>`;
   }
+  /* Portada: tècnica de farmàcia somrient amb bata blanca (no repeteix cap escena de fase) */
+  function technicianArt(){
+    return `<svg class="scene" viewBox="0 0 800 340" role="img" aria-label="Una tècnica de farmàcia somrient, amb bata blanca, darrere del taulell.">
+      <defs><linearGradient id="tw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e6f2ec"/><stop offset="1" stop-color="#d3e6dc"/></linearGradient></defs>
+      <rect width="800" height="340" fill="url(#tw)"/>
+      ${shelfRow(78, 3)}${shelfRow(150, 8)}
+      <g transform="translate(112 46)"><rect x="-38" y="-32" width="76" height="76" rx="10" fill="#0b6e4b"/><path d="M-10 -24h20v14h14v20H10v14h-20V10h-14v-20h14z" fill="#7cf0b8" class="glow"/></g>
+      <g transform="translate(470 120)">
+        <path d="M-118 220 C-118 110 -80 72 0 72 C80 72 118 110 118 220 Z" fill="#ffffff" stroke="#c4d3cc" stroke-width="3"/>
+        <path d="M-30 74 L0 140 L30 74 Z" fill="#7fb8a2"/>
+        <path d="M-30 74 L-14 150 L-46 112 Z M30 74 L14 150 L46 112 Z" fill="#f4f8f6" stroke="#c4d3cc" stroke-width="2"/>
+        <rect x="34" y="128" width="58" height="28" rx="5" fill="#0e8a5f"/><text x="63" y="146" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" font-family="sans-serif">TÈCNICA</text>
+        <rect x="-82" y="150" width="34" height="40" rx="3" fill="none" stroke="#c4d3cc" stroke-width="2"/><path d="M-76 150 v-10 M-64 150 v-14" stroke="#2a5db0" stroke-width="4" stroke-linecap="round"/>
+        <rect x="-12" y="40" width="24" height="36" fill="#e8b48c"/>
+        <path d="M-58 -10 C-66 -84 66 -84 58 -10 L62 66 L38 58 L40 0 C20 -26 -20 -26 -40 0 L-38 58 L-62 66 Z" fill="#3a2a22"/>
+        <ellipse cx="0" cy="0" rx="50" ry="58" fill="#e8b48c"/>
+        <path d="M-50 -10 C-44 -64 44 -64 50 -10 C30 -40 -20 -46 -50 -10Z" fill="#3a2a22"/>
+        <ellipse cx="-18" cy="-4" rx="5" ry="6" fill="#26302c"/><ellipse cx="18" cy="-4" rx="5" ry="6" fill="#26302c"/>
+        <circle cx="-16" cy="-6" r="1.6" fill="#fff"/><circle cx="20" cy="-6" r="1.6" fill="#fff"/>
+        <path d="M-28 -20 Q-18 -26 -8 -21 M8 -21 Q18 -26 28 -20" stroke="#3a2a22" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <circle cx="-30" cy="14" r="9" fill="#e9877a" opacity=".5"/><circle cx="30" cy="14" r="9" fill="#e9877a" opacity=".5"/>
+        <path d="M-20 18 Q0 40 20 18 Q0 28 -20 18Z" fill="#8a3b2e"/><path d="M-14 21 Q0 27 14 21" stroke="#fff" stroke-width="3" fill="none"/>
+        <path d="M-6 6 Q0 12 6 6" stroke="#b97752" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+      </g>
+      <rect x="0" y="258" width="800" height="82" fill="#c9b38f"/><rect x="0" y="250" width="800" height="14" fill="#efe4d2"/>
+      <g transform="translate(620 214)"><rect width="56" height="38" rx="4" fill="#2a5db0"/><rect x="8" y="8" width="40" height="10" fill="#fff" opacity=".85"/><rect x="62" y="6" width="44" height="32" rx="4" fill="#d9534f"/><rect x="68" y="14" width="32" height="8" fill="#fff" opacity=".85"/></g>
+      <g transform="translate(250 222)"><rect width="34" height="28" rx="4" fill="#0e8a5f"/><path d="M13 7h8v5h5v6h-5v5h-8v-5H8v-6h5z" fill="#fff"/></g>
+    </svg>`;
+  }
+  /* Icones del catàleg de proves */
+  const TEST_ICONS = {
+    drop:'<svg viewBox="0 0 24 24"><path d="M12 2C9 7 6 10 6 14a6 6 0 0 0 12 0c0-4-3-7-6-12z" fill="#c0392b"/></svg>',
+    cup:'<svg viewBox="0 0 24 24"><path d="M6 4h12l-1.5 16h-9z" fill="#f7d774" stroke="#c99418" stroke-width="1.5"/></svg>',
+    swab:'<svg viewBox="0 0 24 24"><path d="M4 20L18 6" stroke="#7f90b2" stroke-width="2"/><ellipse cx="19" cy="5" rx="3" ry="2" transform="rotate(-45 19 5)" fill="#fff" stroke="#7f90b2"/></svg>',
+    cells:'<svg viewBox="0 0 24 24"><circle cx="8" cy="9" r="4" fill="#e3b5d6"/><circle cx="16" cy="14" r="5" fill="#e3b5d6"/><circle cx="8" cy="9" r="1.5" fill="#8e3f7a"/><circle cx="16" cy="14" r="2" fill="#8e3f7a"/></svg>',
+    tissue:'<svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12" rx="3" fill="#f6d4dc" stroke="#c0392b"/><path d="M8 6v12M12 6v12M16 6v12" stroke="#c0392b" stroke-width=".8"/></svg>',
+    xray:'<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" fill="#141a22"/><path d="M12 5v14M8 8c-3 1-3 3 3 3M8 12c-3 1-3 3 3 3M16 8c3 1 3 3-3 3M16 12c3 1 3 3-3 3" stroke="#cfe0f2" fill="none"/></svg>',
+    wave:'<svg viewBox="0 0 24 24"><path d="M12 3L3 21h18z" fill="#2d2d2d"/><ellipse cx="12" cy="15" rx="3" ry="2" fill="#aaa"/></svg>',
+    scan:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="#3c4a63" stroke-width="3"/><circle cx="12" cy="12" r="4" fill="#56647a"/></svg>',
+    magnet:'<svg viewBox="0 0 24 24"><path d="M5 4h4v8a3 3 0 0 0 6 0V4h4v8a7 7 0 0 1-14 0z" fill="#2a5db0"/><path d="M5 4h4v3H5zM15 4h4v3h-4z" fill="#d9534f"/></svg>',
+    heart:'<svg viewBox="0 0 24 24"><path d="M2 12h5l2-4 3 8 2-5 1 1h7" stroke="#0e8a5f" stroke-width="2" fill="none"/></svg>',
+    brain:'<svg viewBox="0 0 24 24"><path d="M8 4a4 4 0 0 0-4 4 4 4 0 0 0 0 8 4 4 0 0 0 8 0V6a3 3 0 0 0-4-2zM16 4a4 4 0 0 1 4 4 4 4 0 0 1 0 8 4 4 0 0 1-8 0" fill="#e7a3d6" stroke="#8a3b78"/></svg>',
+    muscle:'<svg viewBox="0 0 24 24"><path d="M4 16c2-6 6-10 10-10 3 0 5 2 5 5-2-1-4 0-5 2-2 4-6 5-10 3z" fill="#e07a5f"/></svg>',
+    scope:'<svg viewBox="0 0 24 24"><path d="M3 5c6 0 6 14 12 14h4" stroke="#3c4a63" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="20" cy="19" r="2" fill="#86b5f0"/></svg>'
+  };
   /* Arte de la pantalla d'accés */
   function counterArt(){
     return pharmacy({nom:"Un pacient", skin:"#f1c7a5", hair:"#5b3a1e", hairStyle:"long", shirt:"#d9534f", sex:"f"});
@@ -152,5 +197,5 @@
     return "";
   }
 
-  window.SCENES = {person, pharmacy, counterArt, lab, consult, testsScene, deskScene, ICONS, result, SPOT_NAMES};
+  window.SCENES = {person, pharmacy, counterArt, technicianArt, TEST_ICONS, lab, consult, testsScene, deskScene, ICONS, result, SPOT_NAMES};
 })();

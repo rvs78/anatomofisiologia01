@@ -29,7 +29,8 @@ for (const id of ["A","B","C"]) {
         if (it.type === "single" || it.type === "multi") it.options.forEach(o => { assert.ok(o.t); if (o.trap) assert.ok(TRAPS[o.trap], it.id + " trap " + o.trap); });
         if (it.type === "classify") { it.cards.forEach(k => assert.ok(it.bins.some(b => b.id === k.a), it.id + " card " + k.id)); if (it.trap) assert.ok(TRAPS[it.trap]); }
         if (it.type === "tests") it.tests.forEach(t => { assert.ok(["need","neutral","no"].includes(t.kind)); assert.ok(t.result && t.result.viz && t.result.text, it.id + " " + t.id); if (t.trap) assert.ok(TRAPS[t.trap]); });
-        assert.ok(["single","multi","classify","tests"].includes(it.type), it.id + " type");
+        if (it.type === "order") { assert.ok(it.steps.length >= 3); assert.equal(new Set(it.steps.map(x => x.id)).size, it.steps.length); }
+        assert.ok(["single","multi","classify","tests","order"].includes(it.type), it.id + " type");
       });
     });
   });
@@ -54,6 +55,7 @@ test("el millor cas dona 1000 i el pitjor 0", () => {
       if (it.type === "multi") { best[it.id] = it.a.slice(); worst[it.id] = it.options.filter(o => !it.a.includes(o.id)).map(o => o.id); }
       if (it.type === "classify") { best[it.id] = {}; worst[it.id] = {}; it.cards.forEach(k => { best[it.id][k.id] = k.a; worst[it.id][k.id] = it.bins.find(b => b.id !== k.a).id; }); }
       if (it.type === "tests") { best[it.id] = it.tests.filter(t => t.kind === "need").map(t => t.id); worst[it.id] = it.tests.filter(t => t.kind === "no").map(t => t.id); }
+      if (it.type === "order") { best[it.id] = it.steps.map(x => x.id); worst[it.id] = it.steps.map(x => x.id).reverse(); if (it.steps.length % 2) { const w = worst[it.id]; [w[0], w[1]] = [w[1], w[0]]; } }
     }));
     const allHints = CASES[id].phases.flatMap(p => p.hints.map(h => h.id));
     assert.equal(CASES[id].phases.reduce((s, p) => s + RA3.phaseScore(p, best, []), 0), 1000, id);
@@ -70,4 +72,43 @@ test("cas C: a la consulta, cap símptoma característic que contradigui el per�
 test("la justificació cita l'apartat on està etiquetada la pregunta", () => {
   for (const id of ["A","B","C"]) CASES[id].phases.forEach(p => p.items.forEach(it =>
     assert.ok(it.why.includes(it.sec), `${it.id}: sec ${it.sec} però «${it.why.slice(-14)}»`)));
+});
+
+test("versió 2: 9 o 10 preguntes per fase i 13 proves a cada cas", () => {
+  const CAT = ["sang","orina","frotis","citologia","biopsia","radiografia","ecografia","tc","rm","ecg","eeg","emg","endoscopia"];
+  const INFO = require("../ra3-malaltia/js/tests-info.js");
+  assert.deepEqual(Object.keys(INFO).sort(), CAT.slice().sort());
+  for (const id of ["A","B","C"]) {
+    CASES[id].phases.forEach(p => assert.ok(p.items.length >= 9 && p.items.length <= 10));
+    const ids = CASES[id].phases[3].items.find(it => it.type === "tests").tests.map(t => t.id);
+    assert.deepEqual(ids.slice().sort(), CAT.slice().sort(), "proves del cas " + id);
+  }
+});
+
+test("tot el contingut té traducció al castellà", () => {
+  global.self = global;
+  for (const id of ["A","B","C"]) {
+    const ES = require("../ra3-malaltia/js/i18n/es-" + id + ".js");
+    assert.ok(ES.name && ES.intro);
+    CASES[id].phases.forEach(p => p.items.forEach(it => {
+      const e = ES.items[it.id]; assert.ok(e && e.prompt && e.why, id + " " + it.id);
+      ["options","cards","bins","steps"].forEach(k => (it[k] || []).forEach(o => assert.ok(e[k] && e[k][o.id], `${it.id} ${k} ${o.id}`)));
+      if (it.say) assert.ok(e.say, it.id + " say");
+      if (it.tests) it.tests.forEach(x => assert.ok(ES.tests[x.id] && ES.tests[x.id].text, it.id + " test " + x.id));
+    }));
+  }
+  const SH = require("../ra3-malaltia/js/i18n/es-shared.js");
+  Object.keys(COMPS).forEach(k => assert.ok(SH.comps[k], "comp " + k));
+  Object.keys(TRAPS).forEach(k => assert.ok(SH.traps[k], "trap " + k));
+});
+
+test("cap patró: la resposta correcta no és sempre la primera opció", () => {
+  for (const id of ["A","B","C"]) {
+    const singles = CASES[id].phases.flatMap(p => p.items).filter(it => it.type === "single" && !it.timeline);
+    const first = singles.filter(it => it.options[0].id === it.a).length;
+    // les preguntes antigues tenien la correcta primer; l'app les barreja per alumne
+    const R = require("../ra3-malaltia/js/core.js");
+    const firstShuffled = singles.filter(it => R.shuffleFor("alumne1@isvh.cat|" + it.id, it.options)[0].id === it.a).length;
+    assert.ok(firstShuffled < singles.length * 0.5, id + ": " + firstShuffled + "/" + singles.length + " (abans " + first + ")");
+  }
 });
