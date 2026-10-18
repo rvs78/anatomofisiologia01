@@ -1,0 +1,6 @@
+{
+  "name": "anatomofisiologia01",
+  "private": true,
+  "type": "commonjs",
+  "scripts": { "test": "node --test tests/" }
+}
