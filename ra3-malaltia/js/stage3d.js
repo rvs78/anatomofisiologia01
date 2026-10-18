@@ -128,15 +128,15 @@
     const holder = el.querySelector(".stage-canvas"), labelsEl = el.querySelector(".stage-labels");
     const renderer = new T.WebGLRenderer({antialias:true, powerPreference:"high-performance"});
     renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5));
-    renderer.outputEncoding = T.sRGBEncoding; renderer.toneMapping = T.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.15;
+    renderer.outputEncoding = T.sRGBEncoding; renderer.toneMapping = T.ACESFilmicToneMapping; renderer.toneMappingExposure = .82;
     renderer.shadowMap.enabled = true; renderer.shadowMap.type = T.PCFSoftShadowMap;
     const cv = renderer.domElement; cv.tabIndex = 0; cv.setAttribute("role", "img"); cv.setAttribute("aria-label", cfg.label);
     holder.appendChild(cv);
     const scene = new T.Scene(); scene.background = new T.Color(cfg.bg || "#e9f0ec"); scene.fog = new T.Fog(cfg.bg || "#e9f0ec", 7, 16);
     const camera = new T.PerspectiveCamera(cfg.fov || 45, 2, .05, 50);
     if (T.RoomEnvironment){ const pm = new T.PMREMGenerator(renderer); scene.environment = pm.fromScene(new T.RoomEnvironment(), .04).texture; pm.dispose(); }
-    scene.add(new T.HemisphereLight("#ffffff", "#b9a383", T.RoomEnvironment ? .45 : .9));
-    const sun = new T.DirectionalLight("#ffffff", .9); sun.position.set(2.5, 4, 3); sun.castShadow = true;
+    scene.add(new T.HemisphereLight("#ffffff", "#b9a383", T.RoomEnvironment ? .25 : .9));
+    const sun = new T.DirectionalLight("#fff6e8", T.RoomEnvironment ? .75 : .9); sun.position.set(2.5, 4, 3); sun.castShadow = true;
     sun.shadow.mapSize.set(1024, 1024); Object.assign(sun.shadow.camera, {left:-4, right:4, top:4, bottom:-4, near:.5, far:12}); sun.shadow.bias = -.0005; scene.add(sun);
 
     const C = Object.assign({mode:"orbit", target:[0, 1, 0], yaw:0, pitch:.2, dist:3, minYaw:-Infinity, maxYaw:Infinity, minPitch:-.2, maxPitch:1.1, minDist:1, maxDist:5}, cfg.camera);
@@ -170,9 +170,9 @@
     setLabels(built.labels);
     const v3 = new T.Vector3();
     function placeLabels(){
-      const w = holder.clientWidth, h = holder.clientHeight, camDist = camera.position.distanceTo(built.occluder || target);
+      const w = holder.clientWidth, h = holder.clientHeight, occZ = built.occluder ? built.occluder.clone().applyMatrix4(camera.matrixWorldInverse).z : 0;
       labels.forEach(l => {
-        l.obj.getWorldPosition(v3); const behind = built.occluder && camera.position.distanceTo(v3) > camDist + .02;
+        l.obj.getWorldPosition(v3); const behind = built.occluder && v3.clone().applyMatrix4(camera.matrixWorldInverse).z < occZ - .06;   // darrere del cos (profunditat de càmera)
         v3.project(camera);
         const off = v3.z > 1 || behind || Math.abs(v3.x) > 1.05 || Math.abs(v3.y) > 1.05;
         const ox = l.side === "left" ? "calc(-100% - 14px)" : l.side === "right" ? "14px" : "-50%", oy = l.side ? "-50%" : l.above ? "-140%" : "40%";
@@ -425,7 +425,10 @@
         lb.add(mesh(box(.8, .62, .05), mat("#2b3442"), 0, 0, 0), mesh(new T.PlaneGeometry(.72, .54), new T.MeshStandardMaterial({map:xr, emissive:"#ffffff", emissiveMap:xr, emissiveIntensity:.8}), 0, 0, .03, false));
         scene.add(lb);
         // monitor d'ECG amb traç que es mou
-        const ecg = canvasTex(256, 128, (g, W, H) => { g.fillStyle = "#0f2a22"; g.fillRect(0, 0, W, H); });
+        const ecg = canvasTex(256, 128, (g, W, H) => { g.fillStyle = "#0f2a22"; g.fillRect(0, 0, W, H);
+          g.strokeStyle = "#7cf0b8"; g.lineWidth = 3; g.beginPath(); g.moveTo(0, 70);   // traç inicial (es veu encara que no hi hagi animacions)
+          for (let x = 0; x <= W; x += 64) { g.lineTo(x + 20, 70); g.lineTo(x + 26, 30); g.lineTo(x + 32, 100); g.lineTo(x + 38, 54); g.lineTo(x + 44, 70); g.lineTo(x + 64, 70); }
+          g.stroke(); });
         const mon = new T.Group(); mon.position.set(.55, 1.2, -.62);
         mon.add(mesh(box(.62, .4, .06), mat("#2b3442"), 0, 0, 0), mesh(new T.PlaneGeometry(.56, .33), new T.MeshBasicMaterial({map:ecg}), 0, 0, .031, false), mesh(box(.08, .25, .08), mat("#2b3442"), 0, -.3, -.02));
         mon.rotation.y = -.25; scene.add(mon);
