@@ -46,7 +46,10 @@ function startApp(USER){
   const fresh = () => ({step:"wizard", wiz:0, name:"", caseId:null, ans:{}, hints:[], seen:[]});
   let S = fresh();
   try { const raw = localStorage.getItem(KEY); if (raw) S = Object.assign(fresh(), JSON.parse(raw)); } catch(e) {}
-  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {} };
+  const stored = () => { try { return JSON.parse(localStorage.getItem(KEY)); } catch(e){ return null; } };
+  const sync = () => { S = RA3.mergeState(S, stored()); };   // una altra pestanya pot haver respost abans
+  const save = () => { sync(); try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {} };
+  addEventListener("storage", e => { if (e.key === KEY){ sync(); render(); } });
   const tmp = {};                 // seleccions encara no comprovades (no es desen)
   const main = $("#main");
   const CASE = () => CASES[S.caseId];
@@ -77,7 +80,7 @@ function startApp(USER){
   const WIZ = [
     {t:"Ets el tècnic o la tècnica de farmàcia", b:() => `<p>Avui fas el torn a l'oficina de farmàcia. Entrarà un pacient amb un problema de salut i el veuràs des de darrere del taulell.</p><p>El seguiràs fins que el metge decideixi el tractament. A cada pas aplicaràs el que has après al RA3, «La malaltia».</p><div class="wizart">${SCENES.counterArt()}</div>`},
     {t:"Cinc fases", b:() => `<ol class="phlist">${PHASES.map((p, i) => `<li><b>${esc(p.title)}</b> <span class="muted">${esc(p.place)}</span><br>${["Escoltes el pacient, observes i decideixes què fer.","Descobreixes l'agent o la causa i els factors de risc.","La doctora l'explora: classifiques signes i símptomes.","Tries les proves que calen i en veus els resultats.","Compares, diagnostiques, classifiques la malaltia i tries el tractament."][i]}</li>`).join("")}</ol>`},
-    {t:"Com es puntua", b:() => `<ul class="rules"><li><b>Cada fase val 200 punts</b>, 1.000 en total. La nota és els punts dividits per 100.</li><li>Un encert suma els punts de la pregunta. Un error en resta la meitat.</li><li>Les ajudes <b>«Consulta els apunts»</b> resten 15 punts cadascuna.</li><li>Demanar proves que no calen també resta.</li><li>Només compta la primera resposta: llegeix bé abans de comprovar.</li></ul>`},
+    {t:"Com es puntua", b:() => `<ul class="rules"><li><b>Cada fase val 200 punts</b>, 1.000 en total. La nota s'obté dividint els punts per 100.</li><li>Un encert suma els punts de la pregunta. Un error en resta la meitat.</li><li>Les ajudes <b>«Consulta els apunts»</b> resten 15 punts cadascuna.</li><li>Demanar proves que no calen també resta.</li><li>Només compta la primera resposta: llegeix bé abans de comprovar.</li></ul>`},
     {t:"Com es lliura", b:() => `<p>Al final veuràs un informe amb la teva puntuació, un <b>DAFO</b> personal (fortaleses, debilitats, oportunitats i amenaces) i un <b>codi de verificació</b>.</p><p>Copia el text de l'informe o fes-ne una captura de pantalla i lliura-ho a la tasca de <b>Google Classroom</b>.</p><p class="muted">El progrés es desa en aquest navegador. Si el tanques, continuaràs on eres.</p>`},
     {t:"Comencem", b:() => `<label class="fl" for="wName">Escriu el teu nom i cognoms</label><input id="wName" type="text" autocomplete="name" value="${esc(S.name)}" placeholder="Nom i cognoms"><p class="lgerr" id="wErr" role="alert"></p>`}
   ];
@@ -256,7 +259,8 @@ function startApp(USER){
     if (act === "tog"){ const s = tmp[id] || []; const o = b.dataset.opt; tmp[id] = s.includes(o) ? s.filter(x => x !== o) : s.concat(o); render(`[data-act=tog][data-opt="${o}"][data-item="${id}"]`); return; }
     if (act === "bin"){ tmp[id] = Object.assign({}, tmp[id], {[b.dataset.card]: b.dataset.bin}); render(`[data-act=bin][data-card="${b.dataset.card}"][data-bin="${b.dataset.bin}"][data-item="${id}"]`); return; }
     if (act === "check"){
-      if (!it || answered(it) || tmp[id] === undefined) return;
+      sync();
+      if (!it || answered(it) || tmp[id] === undefined){ delete tmp[id]; render(); return; }
       S.ans[id] = it.type === "classify" ? Object.assign({}, tmp[id]) : Array.isArray(tmp[id]) ? tmp[id].slice() : tmp[id];
       delete tmp[id]; save(); render(); const q = $("#q-" + id); if (q){ q.focus({preventScroll:true}); q.scrollIntoView({block:"start", behavior: prefs.motion === "off" ? "auto" : "smooth"}); }
       return;
@@ -278,6 +282,7 @@ function startApp(USER){
   });
   main.addEventListener("toggle", e => {
     const d = e.target; if (!d.matches || !d.matches("details.hint") || !d.open) return;
+    sync();
     if (!S.hints.includes(d.dataset.hint)){ S.hints.push(d.dataset.hint); save(); d.classList.add("used"); d.querySelector(".cost").textContent = "oberta · −15"; renderBar(); }
   }, true);
   main.addEventListener("input", e => { if (e.target.id === "wName") S.name = e.target.value; });

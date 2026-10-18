@@ -7,7 +7,7 @@
   "use strict";
 
   /* ---------- Accés */
-  const DOMAIN_RE = /^[a-z0-9._%+-]+@isvh\.cat$/;
+  const DOMAIN_RE = /^[a-z0-9._-]+@isvh\.cat$/;   // sense «+»: un àlies donaria una partida d'assaig
   const normEmail = s => String(s || "").trim().toLowerCase();
   const isValidEmail = s => DOMAIN_RE.test(normEmail(s));
   const PASS_SHA256 = "77b7f7d35e3cc81fbbdcc2b7aec11a3a3a07779cf5002155d0b741300e963435";
@@ -81,6 +81,20 @@
     return out;
   }
 
+  /* ---------- Dues pestanyes: la primera resposta desada sempre guanya */
+  const stepRank = st => st === "report" ? 6 : typeof st === "number" ? st : 0;
+  function mergeState(mine, stored){
+    if (!stored) return mine;
+    const union = (a, b) => (a || []).concat((b || []).filter(x => !(a || []).includes(x)));
+    return Object.assign({}, mine, {
+      name: mine.name || stored.name, caseId: mine.caseId || stored.caseId,
+      step: stepRank(stored.step) > stepRank(mine.step) ? stored.step : mine.step,
+      wiz: Math.max(mine.wiz || 0, stored.wiz || 0),
+      ans: Object.assign({}, mine.ans, stored.ans),
+      hints: union(stored.hints, mine.hints), seen: union(mine.seen, stored.seen)
+    });
+  }
+
   /* ---------- DAFO */
   function dafo(stats, trapIds, hintsCount, COMPS, TRAPS){
     const F = [], D = [], O = [], A = [];
@@ -130,5 +144,5 @@
   }
 
   return {DOMAIN_RE, normEmail, isValidEmail, PASS_SHA256, HINT_COST, PHASE_MAX, TOTAL_MAX, PH_NAMES,
-    fnv1a, caseFor, itemMax, itemDelta, itemErrors, phaseScore, compStats, trapsHit, dafo, grade, verifCode, resultText, parseResultText};
+    fnv1a, caseFor, mergeState, itemMax, itemDelta, itemErrors, phaseScore, compStats, trapsHit, dafo, grade, verifCode, resultText, parseResultText};
 });

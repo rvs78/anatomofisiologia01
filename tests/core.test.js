@@ -71,3 +71,21 @@ test("DAFO", () => {
   assert.ok(d.A.some(s => /ajudes/.test(s)));
   for (const k of ["F","D","O","A"]) assert.ok(d[k].length >= 1, k);
 });
+
+test("un àlies amb + no és vàlid (evita una partida d'assaig)", () => {
+  assert.equal(RA3.isValidEmail("nom.cognom+1@isvh.cat"), false);
+  assert.equal(RA3.isValidEmail("nom.cognom@isvh.cat"), true);
+});
+
+test("fusionar estats de dues pestanyes conserva la primera resposta i les ajudes", () => {
+  const stored = {step:2, wiz:4, name:"Anna", caseId:"A", ans:{A1a:"b"}, hints:["A-h1a"], seen:[]};
+  const mine = {step:1, wiz:4, name:"Anna", caseId:"A", ans:{A1a:"a", A1b:["a"]}, hints:[], seen:["cap"]};
+  const m = RA3.mergeState(mine, stored);
+  assert.equal(m.ans.A1a, "b");
+  assert.deepEqual(m.ans.A1b, ["a"]);
+  assert.deepEqual(m.hints, ["A-h1a"]);
+  assert.deepEqual(m.seen, ["cap"]);
+  assert.equal(m.step, 2);
+  assert.equal(RA3.mergeState(mine, null), mine);
+  assert.equal(RA3.mergeState({step:"report", ans:{}, hints:[], seen:[]}, {step:5, ans:{}, hints:[], seen:[]}).step, "report");
+});

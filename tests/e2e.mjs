@@ -90,8 +90,26 @@ try {
     console.log(`ok · cas ${id} · tot malament + totes les ajudes → 0 punts`);
     await ctx.close();
   }
+  { // dues pestanyes: la segona no pot tornar a respondre ni esborrar ajudes
+    const ctx = await browser.newContext(); const id = "A", e = emailFor(id), it = CASES[id].phases[0].items[0];
+    const p1 = await ctx.newPage(); await login(p1, e);
+    for (let i = 0; i < 4; i++) await p1.click("[data-act=wnext]");
+    await p1.fill("#wName", "Dues Pestanyes"); await p1.click("[data-act=start]");
+    const p2 = await ctx.newPage(); await login(p2, e); await p2.waitForSelector(`#q-${it.id}`);
+    await p2.click(`[data-act=pick][data-item="${it.id}"][data-opt="${it.a}"]`);
+    await p1.click(`details[data-hint="A-h1a"] summary`);
+    await p1.click(`[data-act=pick][data-item="${it.id}"][data-opt="${it.options.find(o => o.id !== it.a).id}"]`);
+    await p1.click(`[data-act=check][data-item="${it.id}"]`);
+    await p2.waitForSelector(`#q-${it.id}.done`);
+    assert.match(await p2.textContent(`#q-${it.id} .verdict`), /No és correcte/);
+    assert.equal(await p2.textContent("#score"), await p1.textContent("#score"));
+    const st = await p2.evaluate(k => JSON.parse(localStorage.getItem(k)), "ra3-malaltia:" + e);
+    assert.notEqual(st.ans[it.id], it.a); assert.ok(st.hints.includes("A-h1a"));
+    console.log("ok · dues pestanyes: es manté la primera resposta i l'ajuda");
+    await ctx.close();
+  }
   const ctx = await browser.newContext(); const page = await ctx.newPage();
-  for (const [email, pass, msg] of [["a@isvh.cat.evil.com", "far2026", "@isvh.cat"], ["nom@isvh.cat", "dolenta", "contrasenya"]]) {
+  for (const [email, pass, msg] of [["a@isvh.cat.evil.com", "far2026", "@isvh.cat"], ["nom+1@isvh.cat", "far2026", "@isvh.cat"], ["nom@isvh.cat", "dolenta", "contrasenya"]]) {
     await login(page, email, pass);
     assert.match(await page.textContent("#lgErr"), new RegExp(msg));
   }

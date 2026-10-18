@@ -60,3 +60,9 @@ test("el millor cas dona 1000 i el pitjor 0", () => {
     CASES[id].phases.forEach(p => assert.equal(RA3.phaseScore(p, worst, allHints), 0, id));
   }
 });
+
+test("cas C: a la consulta, cap símptoma característic que contradigui el període subclínic", () => {
+  const c3a = CASES.C.phases[2].items.find(it => it.id === "C3a");
+  assert.ok(!c3a.cards.some(k => /borrosa|formigueig/i.test(k.t)));
+  assert.match(CASES.C.phases[2].items.find(it => it.id === "C3c").prompt, /[Aa]bans de l'examen/);
+});
