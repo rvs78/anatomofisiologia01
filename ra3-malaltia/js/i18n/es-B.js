@@ -51,7 +51,7 @@
         why:"El prefijo dis- indica dificultad o alteración: disfagia, dificultad para tragar; disnea, dificultad para respirar. «Rápido» es taqui- y «ausencia» es a-/an- (3.6)."},
       B1n5:{prompt:"Jordi te pide un antibiótico sin receta. ¿Qué haces? Marca todas las respuestas correctas.",
         say:"Ya me tomo paracetamol por mi cuenta. ¿Me podrías dar también un antibiótico, por si acaso?",
-        options:{a:"Darle el antibiótico para que se cure antes", b:"Explicarle que el antibiótico lo prescribe el médico y solo actúa sobre bacterias", c:"Decirle que tiene una faringitis bacteriana", d:"Recomendarle no automedicarse y derivarle al médico"},
+        options:{a:"Darle el antibiótico para que se cure antes", b:"Explicarle que el antibiótico lo prescribe el médico y solo actúa sobre bacterias", c:"Decirle que tiene una faringitis bacteriana", d:"Recomendarle no automedicarse y derivarlo al médico"},
         why:"El técnico no diagnostica ni dispensa antibióticos sin receta: deriva al médico, desaconseja la automedicación y contribuye al uso correcto del tratamiento prescrito (3.5)."},
 
       /* ================= Fase 2 · existents */
@@ -78,7 +78,7 @@
         why:"Semiología: signos y síntomas. Fisiopatología: cómo funciona un órgano enfermo. Anatomía patológica: cambios de células y tejidos. Patogenia: el mecanismo (entrada → acción → respuesta → resultado) (3.2)."},
       B2n2:{prompt:"En el laboratorio de causas clasificas posibles causas de enfermedad. ¿De dónde vienen?",
         bins:{exo:"Exógena", endo:"Endógena", amb:"Ambiental"},
-        cards:{"1":"El virus de la faringitis de Jordi", "2":"El polen al que es alérgico", "3":"Una alteración hormonal", "4":"Una alteración genética", "5":"El aire contaminado que respira repartiendo por la ciudad", "6":"Muchas horas de exposición al sol"},
+        cards:{"1":"El virus de la faringitis de Jordi", "2":"Un alérgeno: el polen al que es alérgico", "3":"Una alteración hormonal", "4":"Una alteración genética", "5":"El aire contaminado que respira mientras reparte por la ciudad", "6":"Muchas horas de exposición al sol"},
         why:"Exógena: viene de fuera (virus, alérgeno). Endógena: alteración interna (hormonal, genética). Ambiental: exposición del entorno (aire contaminado, sol) (3.2)."},
       B2n3:{prompt:"¿Qué opción describe bien la tríada agente – persona – entorno de la faringitis de Jordi?",
         options:{a:"Agente: el tabaco · Persona: el virus · Entorno: la furgoneta", b:"Agente: el virus · Persona: sus defensas y la garganta irritada por el tabaco · Entorno: el contacto diario con muchos clientes", c:"Agente: los clientes · Persona: el virus · Entorno: el polen", d:"Agente: la edad · Persona: el tabaco · Entorno: el virus"},
@@ -117,7 +117,7 @@
         why:"Prepatogénico → subclínico (incubación, en las infecciones) → prodrómico (manifestaciones inespecíficas) → clínico (manifestaciones características) → desenlace (3.4)."},
       B3n4:{prompt:"La doctora repasa términos que puede encontrar en un cuadro como el de Jordi. ¿A qué aparato pertenece cada manifestación?",
         bins:{resp:"Respiratoria", circ:"Circulatoria", urin:"Urinaria"},
-        cards:{"1":"Taquipnea (respiración rápida)", "2":"Cianosis (color azulado)", "3":"Taquicardia (corazón rápido)", "4":"Oliguria (poca orina)"},
+        cards:{"1":"Taquipnea (respiración rápida)", "2":"Bradipnea (respiración lenta)", "3":"Taquicardia (corazón rápido)", "4":"Oliguria (poca orina)"},
         why:"La taquipnea y la cianosis son respiratorias, la taquicardia es circulatoria y la oliguria es urinaria. En el síndrome febril pueden aparecer taquicardia, taquipnea y menos orina (3.2)."},
       B3n5:{prompt:"Febrícula, cansancio y dolor de cabeza aparecen juntos y pueden tener más de una causa. ¿Cómo se llama este conjunto?",
         options:{a:"Una enfermedad", b:"Un signo", c:"Un síndrome", d:"Un diagnóstico definitivo"},

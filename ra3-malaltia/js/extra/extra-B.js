@@ -74,10 +74,10 @@
           bins:[{id:"exo", t:"Exògena"}, {id:"endo", t:"Endògena"}, {id:"amb", t:"Ambiental"}],
           cards:[
             {id:"1", t:"El virus de la faringitis d'en Jordi", a:"exo"},
-            {id:"2", t:"El pol·len al qual és al·lèrgic", a:"exo"},
+            {id:"2", t:"Un al·lergen: el pol·len al qual és al·lèrgic", a:"exo"},
             {id:"3", t:"Una alteració hormonal", a:"endo"},
             {id:"4", t:"Una alteració genètica", a:"endo"},
-            {id:"5", t:"L'aire contaminat que respira repartint per la ciutat", a:"amb"},
+            {id:"5", t:"L'aire contaminat que respira mentre fa el repartiment per la ciutat", a:"amb"},
             {id:"6", t:"Moltes hores d'exposició al sol", a:"amb"}],
           why:"Exògena: ve de fora (virus, al·lergen). Endògena: alteració interna (hormonal, genètica). Ambiental: exposició de l'entorn (aire contaminat, sol) (3.2)."},
         {id:"B2n3", comp:"etiologia", sec:"3.2", type:"single", pts:20,
@@ -145,7 +145,7 @@
           bins:[{id:"resp", t:"Respiratòria"}, {id:"circ", t:"Circulatòria"}, {id:"urin", t:"Urinària"}],
           cards:[
             {id:"1", t:"Taquipnea (respiració ràpida)", a:"resp"},
-            {id:"2", t:"Cianosi (color blavós)", a:"resp"},
+            {id:"2", t:"Bradipnea (respiració lenta)", a:"resp"},
             {id:"3", t:"Taquicàrdia (cor ràpid)", a:"circ"},
             {id:"4", t:"Oligúria (poca orina)", a:"urin"}],
           why:"Taquipnea i cianosi són respiratòries, la taquicàrdia és circulatòria i l'oligúria és urinària. A la síndrome febril poden aparèixer taquicàrdia, taquipnea i menys orina (3.2)."},

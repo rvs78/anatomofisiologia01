@@ -49,7 +49,7 @@
         why: "Para la OMS, la salud es un estado completo de bienestar físico, psíquico y social y no solo la ausencia de enfermedad; además, es un concepto dinámico (3.1)."
       },
       "C1n2": {
-        say: "Yo creo que esto del azúcar es cosa de la herencia: mi padre también tenía.",
+        say: "Yo creo que esto del azúcar es cosa de la herencia: mi padre también lo tenía.",
         prompt: "Según el modelo de Lalonde, ¿qué determinante pesa más en la salud de una persona?",
         options: {a:"La biología humana (herencia, edad)", b:"El sistema sanitario", c:"El estilo de vida (alimentación, actividad física, hábitos)", d:"El medio ambiente"},
         why: "Según Lalonde, el estilo de vida pesa un 43%, más que la biología humana (27%), el medio ambiente (19%) y el sistema sanitario (11%): los hábitos de Antoni cuentan mucho (3.1)."
@@ -110,7 +110,7 @@
       "C2n2": {
         prompt: "En el laboratorio hay muestras de causas diferentes. Clasifica cada causa según su origen.",
         bins: {exo:"Exógena", endo:"Endógena", amb:"Ambiental"},
-        cards: {"1":"La alteración metabólica de Antoni", "2":"El virus de la gripe de un compañero de la oficina", "3":"El aire contaminado de la ciudad", "4":"Un déficit de lactasa", "5":"El polen que provoca una alergia", "6":"Un gesto repetitivo en el trabajo"},
+        cards: {"1":"La alteración metabólica de Antoni", "2":"El virus de la gripe de un compañero de la oficina", "3":"El aire contaminado de la ciudad", "4":"Un déficit de lactasa", "5":"Un alérgeno como el polen", "6":"Un gesto repetitivo en el trabajo"},
         why: "Exógena viene de fuera (virus, alérgeno); endógena es una alteración interna (metabólica, déficit de lactasa); ambiental es una exposición del entorno (aire contaminado, gesto repetitivo) (3.2)."
       },
       "C2n3": {
@@ -226,7 +226,7 @@
       },
       "C4n5": {
         prompt: "¿Para qué sirven las pruebas que ha pedido la doctora? Márcalo todo.",
-        options: {a:"Confirmar la hipótesis de diabetes", b:"Hacerlas todas, por si acaso", c:"Precisar el alcance: cuánto de alta está la glucosa", d:"Sustituir la anamnesis y la exploración", e:"Descartar otras explicaciones"},
+        options: {a:"Confirmar la hipótesis de diabetes", b:"Hacerlas todas, por si acaso", c:"Precisar el alcance: qué nivel de glucosa tiene", d:"Sustituir la anamnesis y la exploración", e:"Descartar otras explicaciones"},
         why: "Las pruebas se piden para confirmar, precisar o descartar, después de escuchar y explorar; no hace falta hacerlas todas (3.5)."
       },
 

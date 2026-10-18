@@ -138,15 +138,15 @@
       /* ---------------- Fase 3 · La consulta */
       [
         {id:"A3n1", comp:"signes", sec:"3.2", type:"classify", pts:30,
-          prompt:"La doctora revisa les temperatures que la Marta s'ha pres aquests dies. Classifica cada valor.",
+          prompt:"La doctora revisa les temperatures de la Marta i n'hi afegeix dues d'altres pacients per comparar. Classifica cada valor.",
           bins:[{id:"febricula", t:"Febrícula (37–38 °C)"}, {id:"febre", t:"Febre (38–40 °C)"}, {id:"hiper", t:"Hipertèrmia (>41 °C)"}],
           cards:[
             {id:"1", t:"Dissabte al matí: 37,4 °C", a:"febricula"},
             {id:"2", t:"Dissabte al vespre: 37,8 °C", a:"febricula"},
             {id:"3", t:"A la farmàcia: 38,9 °C", a:"febre"},
             {id:"4", t:"Diumenge a la nit: 39,6 °C", a:"febre"},
-            {id:"5", t:"Un valor de 41,3 °C", a:"hiper"},
-            {id:"6", t:"Un valor de 41,8 °C", a:"hiper"}
+            {id:"5", t:"Un altre pacient: 41,3 °C", a:"hiper"},
+            {id:"6", t:"Un altre pacient: 41,8 °C", a:"hiper"}
           ],
           why:"Febrícula: 37–38 °C; febre: 38–40 °C; hipertèrmia: més de 41 °C. La Marta té febre, no hipertèrmia (3.2)."},
 
@@ -234,7 +234,7 @@
         {id:"A4n4", comp:"proves", sec:"3.5", type:"single", pts:20,
           prompt:"La doctora recorda a la Marta que hi ha programes de cribratge per a persones sanes. Què és el diagnòstic precoç?",
           options:[
-            {id:"a", t:"Diagnosticar la grip el primer dia de febre"},
+            {id:"a", t:"Diagnosticar la grip quan ja té febre alta, tos i dolor muscular"},
             {id:"b", t:"Si no hi ha símptomes no hi ha malaltia, i no cal cap prova", trap:"asimptomatic"},
             {id:"c", t:"El diagnòstic que fa el tècnic de farmàcia al taulell", trap:"diagnosticar"},
             {id:"d", t:"Detectar una malaltia abans que doni símptomes, amb proves de cribratge"}
@@ -282,7 +282,7 @@
           why:"El pronòstic és un judici anticipat sobre l'evolució que dona el personal mèdic; té graus (lleu, greu, molt greu, crític, reservat) i pot canviar (3.5)."},
 
         {id:"A5n3", comp:"tractament", sec:"3.5", type:"classify", pts:30, trap:"simptomaticCuratiu",
-          prompt:"Classifica cada tractament segons el seu objectiu. Fixa't també si és local o sistèmic.",
+          prompt:"Classifica cada tractament segons el seu objectiu (entre parèntesis s'indica si és local o sistèmic).",
           bins:[{id:"simp", t:"Simptomàtic"}, {id:"cur", t:"Curatiu"}, {id:"pal", t:"Pal·liatiu"}],
           cards:[
             {id:"1", t:"Paracetamol oral per baixar la febre de la Marta (sistèmic)", a:"simp"},

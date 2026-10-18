@@ -2,7 +2,7 @@
 (function(root, factory){ const v = factory(); if (typeof module === "object" && module.exports) module.exports = v; else root.RA3_TESTS = v; })(typeof self !== "undefined" ? self : this, function(){
   "use strict";
   return {
-    sang: {icon:"drop", ionizing:false, invasive:true,
+    sang: {icon:"drop", ionizing:false, invasive:false,
       ca:{name:"Analítica de sang",
         what:"Mesura els components de la sang: les cèl·lules (glòbuls vermells, glòbuls blancs i plaquetes) i substàncies bioquímiques com la glucosa.",
         why:"Serveix per detectar o confirmar alteracions internes; per exemple, una glucosa alta en sang orienta cap a una diabetis.",
@@ -95,11 +95,11 @@
     eeg: {icon:"brain", ionizing:false, invasive:false,
       ca:{name:"EEG (electroencefalograma)",
         what:"Registra l'activitat elèctrica del cervell.",
-        why:"Serveix per estudiar convulsions o alteracions del son; per exemple, per confirmar una epilèpsia.",
+        why:"Serveix per estudiar convulsions o alteracions del son; per exemple, per ajudar a diagnosticar una epilèpsia.",
         how:"Es col·loquen elèctrodes petits al cuir cabellut i es registren les ones del cervell; no fa mal ni fa servir radiació ionitzant."},
       es:{name:"EEG (electroencefalograma)",
         what:"Registra la actividad eléctrica del cerebro.",
-        why:"Sirve para estudiar convulsiones o alteraciones del sueño; por ejemplo, para confirmar una epilepsia.",
+        why:"Sirve para estudiar convulsiones o alteraciones del sueño; por ejemplo, para ayudar a diagnosticar una epilepsia.",
         how:"Se colocan electrodos pequeños en el cuero cabelludo y se registran las ondas del cerebro; no duele ni utiliza radiación ionizante."}},
     emg: {icon:"muscle", ionizing:false, invasive:true,
       ca:{name:"EMG (electromiograma)",
