@@ -1,5 +1,14 @@
 /* El cas del taulell · disseny: oficina de farmàcia (creu verda, prestatges, taulell de fusta).
    L'escena il·lustrada és la protagonista; la resta és sòbria. Signe = blau (instrument); símptoma = pruna (veu del pacient). */
+/* Fonts allotjades al mateix lloc (sense peticions a Google): Atkinson Hyperlegible, Bricolage Grotesque i Lexend · OFL */
+@font-face{font-family:"Atkinson Hyperlegible";font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/atkinson-hyperlegible-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Atkinson Hyperlegible";font-style:italic;font-weight:400;font-display:swap;src:url(../fonts/atkinson-hyperlegible-latin-400-italic.woff2) format("woff2")}
+@font-face{font-family:"Atkinson Hyperlegible";font-style:normal;font-weight:700;font-display:swap;src:url(../fonts/atkinson-hyperlegible-latin-700-normal.woff2) format("woff2")}
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:500;font-display:swap;src:url(../fonts/bricolage-grotesque-latin-500-normal.woff2) format("woff2")}
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:700;font-display:swap;src:url(../fonts/bricolage-grotesque-latin-700-normal.woff2) format("woff2")}
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:800;font-display:swap;src:url(../fonts/bricolage-grotesque-latin-800-normal.woff2) format("woff2")}
+@font-face{font-family:"Lexend";font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/lexend-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Lexend";font-style:normal;font-weight:600;font-display:swap;src:url(../fonts/lexend-latin-600-normal.woff2) format("woff2")}
 :root{
   --bg:#eaf2ee; --surface:#ffffff; --ink:#12322b; --muted:#4a635b; --line:#b6cac1; --soft:#dfebe5;
   --accent:#0e8a5f; --accent-ink:#ffffff; --accent-soft:#d3efe2;
@@ -216,3 +225,23 @@ textarea.copy{width:100%;margin-top:10px;font-family:ui-monospace,Menlo,Consolas
 .pop{animation:fade .5s ease-out both} .pop.d2{animation-delay:.6s}
 :root[data-motion="off"] *,:root[data-motion="off"] *:before{animation:none!important;transition:none!important}
 @media (prefers-reduced-motion: reduce){*,*:before{animation:none!important;transition:none!important}}
+
+/* ---------- Escenes 3D */
+.stage-slot.is3d{position:relative;aspect-ratio:16/7;background:#e9f0ec}
+.stage-slot.is3d.k-pharmacy{aspect-ratio:21/9}
+@media (max-width:640px){.stage-slot.is3d,.stage-slot.is3d.k-pharmacy{aspect-ratio:4/3.4}}
+.stage3d,.stage-canvas{position:absolute;inset:0}
+.stage-canvas canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
+.stage-canvas canvas:active{cursor:grabbing}
+.stage-labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.s3lbl{position:absolute;left:0;top:0;pointer-events:auto;font:700 .8rem var(--f-body);background:#ffffff;color:#12322b;border:2px solid #0e8a5f;border-radius:999px;padding:3px 11px;white-space:nowrap;min-height:34px;cursor:pointer;box-shadow:0 2px 8px rgba(18,50,43,.18)}
+span.s3lbl{cursor:default;min-height:0;border-color:#9fb7ad;background:rgba(255,255,255,.88);font-weight:600}
+.s3lbl.seen{border-color:#2a5db0;color:#2a5db0}
+.s3lbl.agent{border-color:#3c4a63}
+.s3lbl.off{opacity:0;pointer-events:none}
+.stage-ctrl{position:absolute;right:10px;bottom:10px;display:flex;gap:6px}
+.sc{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.94);color:#12322b;border:1px solid #9fb7ad;font-size:1.15rem;line-height:1;cursor:pointer;box-shadow:0 2px 8px rgba(18,50,43,.15)}
+.sc:hover{border-color:#0e8a5f}
+.stage-hint{position:absolute;left:10px;top:10px;margin:0;font-size:.78rem;background:rgba(255,255,255,.88);color:#12322b;padding:3px 10px;border-radius:999px;pointer-events:none}
+.k-pharmacy .stage-hint{left:auto;right:10px}
+@media (max-width:640px){.stage-hint{display:none}.sc{width:40px;height:40px}}

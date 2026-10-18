@@ -6,7 +6,7 @@ const SPEAK_ICON = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><pat
 
 /* ================================================== Preferències de lectura */
 const PREF_KEY = "ra3-malaltia-prefs";
-const prefs = Object.assign({size:"m", contrast:"normal", font:"atkinson", motion:"on"}, (() => { try { return JSON.parse(localStorage.getItem(PREF_KEY)) || {}; } catch(e){ return {}; } })());
+const prefs = Object.assign({size:"m", contrast:"normal", font:"atkinson", motion:"on", d3:"on"}, (() => { try { return JSON.parse(localStorage.getItem(PREF_KEY)) || {}; } catch(e){ return {}; } })());
 function applyPrefs(){
   const r = document.documentElement;
   r.dataset.size = prefs.size; r.dataset.font = prefs.font; r.dataset.motion = prefs.motion;
@@ -19,11 +19,15 @@ function initA11y(){
   btn.onclick = () => { const open = dlg.hidden; dlg.hidden = !open; btn.setAttribute("aria-expanded", String(open)); if (open) dlg.querySelector("input:checked").focus(); };
   $("#a11yClose").onclick = close;
   dlg.addEventListener("keydown", e => { if (e.key === "Escape") close(); });
-  ["size","font","contrast","motion"].forEach(n => dlg.querySelectorAll(`input[name=${n}]`).forEach(inp => {
+  ["size","font","contrast","motion","d3"].forEach(n => dlg.querySelectorAll(`input[name=${n}]`).forEach(inp => {
     inp.checked = prefs[n] === inp.value;
-    inp.onchange = () => { prefs[n] = inp.value; applyPrefs(); };
+    inp.onchange = () => { prefs[n] = inp.value; applyPrefs(); if (n === "d3" && window.__ra3Rerender) window.__ra3Rerender(); };
   }));
 }
+
+/* ================================================== Moviment (pautes HyperFrames: només transformacions i opacitat) */
+const still = () => prefs.motion === "off" || matchMedia("(prefers-reduced-motion: reduce)").matches || !window.gsap;
+const fx = (targets, from, extra) => { if (still()) return; const t = typeof targets === "string" ? document.querySelectorAll(targets) : targets; if (!t || (t.length === 0)) return; gsap.from(t, Object.assign({duration:.5, ease:"power3.out", clearProps:"transform,opacity,visibility"}, from, extra || {})); };
 
 /* ================================================== Veu */
 let speaking = null;
@@ -57,32 +61,70 @@ function startApp(USER){
   const total = () => [0,1,2,3,4].reduce((s, i) => s + ph(i), 0);
   const errors = () => S.caseId ? CASE().phases.reduce((s, p) => s + p.items.reduce((t, it) => t + RA3.itemErrors(it, S.ans[it.id]), 0), 0) : 0;
   const answered = it => S.ans[it.id] !== undefined;
+  const nameOk = n => String(n || "").trim().split(/\s+/).filter(w => w.length >= 2).length >= 2;
   const signed = n => (n > 0 ? "+" : n < 0 ? "−" : "") + Math.abs(n);
 
   /* --- capçalera */
   function renderBar(){
     const cur = typeof S.step === "number" ? S.step : S.step === "report" ? 6 : 0;
     $("#steps").innerHTML = PHASES.map((p, i) => `<li class="${i + 1 < cur ? "done" : i + 1 === cur ? "now" : ""}"${i + 1 === cur ? ' aria-current="step"' : ""}><span>${i + 1}</span> ${esc(p.title)}</li>`).join("");
-    $("#score").innerHTML = S.caseId ? `${total()} <small>/ 1000 punts</small>` : "";
+    const to = total(), sc = $("#score");
+    if (!S.caseId){ sc.innerHTML = ""; return; }
+    sc.innerHTML = `<b id="scoreN">${shown}</b> <small>/ 1000 punts</small>`;
+    if (to === shown) return;
+    if (still()){ shown = to; $("#scoreN").textContent = to; return; }
+    const o = {v:shown}; shown = to;
+    gsap.to(o, {v:to, duration:.8, ease:"power2.out", onUpdate:() => { const n = $("#scoreN"); if (n) n.textContent = Math.round(o.v); }});
+    gsap.fromTo(sc, {scale:1.15}, {scale:1, duration:.5, ease:"back.out(3)", clearProps:"transform"});
   }
+  let shown = 0;
 
   /* --- render general */
+  let lastView = null, stage = null;
   function render(focusSel){
     renderBar();
+    const view = S.step === "wizard" ? "wizard-" + S.wiz : String(S.step);
     if (S.step === "wizard") main.innerHTML = wizard();
     else if (S.step === "report") main.innerHTML = report();
     else main.innerHTML = phaseView(S.step - 1);
+    mountStage();
+    if (view !== lastView){
+      lastView = view;
+      if (S.step === "report") introReport();
+      else { fx(".scenebox", {autoAlpha:0, scale:.97, duration:.6}); fx(".wiz > *, .pcol > *", {autoAlpha:0, y:18}, {stagger:.06, delay:.1}); }
+    }
     if (focusSel){ const el = main.querySelector(focusSel); if (el) el.focus({preventScroll:false}); }
+  }
+  window.__ra3Rerender = () => { if (stage){ stage.api.dispose(); stage = null; } render(); };
+
+  /* --- escenes 3D: es mantenen vives entre renders perquè no es perdi la càmera */
+  const use3D = () => prefs.d3 !== "off" && window.STAGE3D && STAGE3D.supported();
+  function stageOpts(kind){
+    const c = CASE();
+    if (kind === "pharmacy"){ const cur = c.phases[0].items.find(it => !answered(it)); const said = c.phases[0].items.filter(it => it.say && (answered(it) || it === cur)); return {patient:c.patient, say:(said[said.length - 1] || c.phases[0].items[0]).say}; }
+    if (kind === "lab"){ const it = c.phases[1].items.find(x => x.icons); return {models:it.options.map(o => o.id), selected:answered(it) ? S.ans[it.id] : tmp[it.id], onPick:id => { if (answered(it)) return; tmp[it.id] = id; render(); const q = $("#q-" + it.id); if (q) q.scrollIntoView({block:"nearest", behavior: still() ? "auto" : "smooth"}); }}; }
+    if (kind === "consult"){ const ex = c.phases[2].items.find(it => it.explore); return {patient:c.patient, spots:[...new Set(ex.cards.map(k => k.spot))], seen:S.seen.slice(), onSpot:explore}; }
+    return {};
+  }
+  function mountStage(){
+    const slot = main.querySelector(".stage-slot");
+    if (!slot || !use3D()){ if (stage){ stage.api.dispose(); stage = null; } return; }
+    const kind = slot.dataset.kind, key = kind + ":" + S.caseId, opts = stageOpts(kind);
+    slot.innerHTML = ""; slot.classList.add("is3d", "k-" + kind);
+    if (stage && stage.key === key){ slot.appendChild(stage.api.el); stage.api.update(opts); return; }
+    if (stage) stage.api.dispose();
+    try { stage = {key, api:STAGE3D[kind === "tests" ? "testsRoom" : kind](slot, opts)}; }
+    catch(err){ stage = null; slot.classList.remove("is3d"); slot.innerHTML = slot.dataset.fallback ? decodeURIComponent(slot.dataset.fallback) : ""; }
   }
   const goTop = () => { window.scrollTo(0, 0); main.focus({preventScroll:true}); };
 
   /* ================================================== Assistent d'instruccions */
   const WIZ = [
-    {t:"Ets el tècnic o la tècnica de farmàcia", b:() => `<p>Avui fas el torn a l'oficina de farmàcia. Entrarà un pacient amb un problema de salut i el veuràs des de darrere del taulell.</p><p>El seguiràs fins que el metge decideixi el tractament. A cada pas aplicaràs el que has après al RA3, «La malaltia».</p><div class="wizart">${SCENES.counterArt()}</div>`},
+    {t:"Ets el tècnic o la tècnica de farmàcia", b:() => `<label class="fl" for="wName">Escriu el teu nom i cognoms per començar</label><input id="wName" type="text" autocomplete="name" value="${esc(S.name)}" placeholder="Nom i cognoms"><p class="lgerr" id="wErr" role="alert"></p><p>Avui fas el torn a l'oficina de farmàcia. Entrarà un pacient amb un problema de salut i el veuràs des de darrere del taulell.</p><p>El seguiràs fins que el metge decideixi el tractament. A cada pas aplicaràs el que has après al RA3, «La malaltia».</p><div class="wizart">${SCENES.counterArt()}</div>`},
     {t:"Cinc fases", b:() => `<ol class="phlist">${PHASES.map((p, i) => `<li><b>${esc(p.title)}</b> <span class="muted">${esc(p.place)}</span><br>${["Escoltes el pacient, observes i decideixes què fer.","Descobreixes l'agent o la causa i els factors de risc.","La doctora l'explora: classifiques signes i símptomes.","Tries les proves que calen i en veus els resultats.","Compares, diagnostiques, classifiques la malaltia i tries el tractament."][i]}</li>`).join("")}</ol>`},
     {t:"Com es puntua", b:() => `<ul class="rules"><li><b>Cada fase val 200 punts</b>, 1.000 en total. La nota s'obté dividint els punts per 100.</li><li>Un encert suma els punts de la pregunta. Un error en resta la meitat.</li><li>Les ajudes <b>«Consulta els apunts»</b> resten 15 punts cadascuna.</li><li>Demanar proves que no calen també resta.</li><li>Només compta la primera resposta: llegeix bé abans de comprovar.</li></ul>`},
     {t:"Com es lliura", b:() => `<p>Al final veuràs un informe amb la teva puntuació, un <b>DAFO</b> personal (fortaleses, debilitats, oportunitats i amenaces) i un <b>codi de verificació</b>.</p><p>Copia el text de l'informe o fes-ne una captura de pantalla i lliura-ho a la tasca de <b>Google Classroom</b>.</p><p class="muted">El progrés es desa en aquest navegador. Si el tanques, continuaràs on eres.</p>`},
-    {t:"Comencem", b:() => `<label class="fl" for="wName">Escriu el teu nom i cognoms</label><input id="wName" type="text" autocomplete="name" value="${esc(S.name)}" placeholder="Nom i cognoms"><p class="lgerr" id="wErr" role="alert"></p>`}
+    {t:"Comencem", b:() => `<p>Torn de <b>${esc(S.name)}</b>. Quan premis el botó, entrarà el primer pacient.</p><p class="muted">Les fases s'obren una darrere l'altra: per passar a la següent cal respondre totes les preguntes de l'actual.</p>`}
   ];
   function wizard(){
     const w = WIZ[S.wiz], last = S.wiz === WIZ.length - 1;
@@ -102,17 +144,18 @@ function startApp(USER){
     if (pi === 0){
       const said = c.phases[0].items.filter(it => it.say && (answered(it) || it === cur));
       const say = said.length ? said[said.length - 1].say : c.phases[0].items[0].say;
-      return `<div class="scenebox">${SCENES.pharmacy(p)}<div class="bubble" role="note"><b>${esc(p.nom)}</b><p>${esc(say)}</p>${sayBtn(say)}</div></div>`;
+      return `<div class="scenebox">${slot("pharmacy", SCENES.pharmacy(p))}<div class="bubble" role="note"><b>${esc(p.nom)}</b><p>${esc(say)}</p>${sayBtn(say)}</div></div>`;
     }
-    if (pi === 1) return `<div class="scenebox">${SCENES.lab()}</div>`;
+    if (pi === 1) return `<div class="scenebox">${slot("lab", SCENES.lab())}</div>`;
     if (pi === 2){
       const ex = c.phases[2].items.find(it => it.explore);
       const spots = [...new Set(ex.cards.map(k => k.spot))];
-      return `<div class="scenebox">${SCENES.consult(p, spots, S.seen)}</div>`;
+      return `<div class="scenebox">${slot("consult", SCENES.consult(p, spots, S.seen))}</div>`;
     }
-    if (pi === 3) return `<div class="scenebox">${SCENES.testsScene()}</div>`;
+    if (pi === 3) return `<div class="scenebox">${slot("tests", SCENES.testsScene())}</div>`;
     return `<div class="scenebox">${SCENES.deskScene(p)}</div>`;
   }
+  const slot = (kind, svg) => `<div class="stage-slot" data-kind="${kind}" data-fallback="${encodeURIComponent(svg)}">${svg}</div>`;
   function hintsBox(phase){
     return `<div class="hints" aria-label="Ajudes"><p class="small muted">Si t'encalles, pots consultar els apunts. Cada ajuda que obres resta 15 punts.</p>${phase.hints.map(h => {
       const used = S.hints.includes(h.id);
@@ -216,6 +259,12 @@ function startApp(USER){
         return `<rect class="barbg" x="${x}" y="${H - 200}" width="${bw}" height="200" rx="6"/><rect class="bar growy" style="animation-delay:${i * 90}ms" x="${x}" y="${H - s}" width="${bw}" height="${Math.max(s, 0)}" rx="6"/><text x="${x + bw / 2}" y="${H - s - 8}" text-anchor="middle" class="val">${s}</text><text x="${x + bw / 2}" y="${H + 22}" text-anchor="middle" class="ax">${esc(PHASES[i].title.replace(/^(El|La|Les) /, ""))}</text>`; }).join("")}
     </svg>`;
   }
+  function introReport(){
+    fx(".rhead > div:first-child > *", {autoAlpha:0, y:16}, {stagger:.07});
+    const b = $(".bignum b"); if (b && !still()){ const fin = b.textContent, n = parseFloat(fin.replace(",", ".")), o = {v:0};
+      gsap.to(o, {v:n, duration:1.4, ease:"power2.out", onUpdate:() => { b.textContent = o.v.toFixed(1).replace(".", ","); }, onComplete:() => { b.textContent = fin; }}); }
+    fx(".panel", {autoAlpha:0, y:24}, {stagger:.12, delay:.2}); fx(".dq", {autoAlpha:0, scale:.94}, {stagger:.1, delay:.5});
+  }
   function report(){
     const f = fields(), c = CASE();
     const d = RA3.dafo(RA3.compStats(c, S.ans), RA3.trapsHit(c, S.ans), S.hints.length, COMPS, TRAPS);
@@ -248,12 +297,13 @@ function startApp(USER){
     const it = id ? CASE().phases.flatMap(p => p.items).find(x => x.id === id) : null;
     if (act === "say") return speak(b.dataset.text, b);
     if (act === "spot") return explore(b.dataset.spot);
-    if (act === "wnext"){ S.wiz++; save(); render("#wTitle"); return; }
+    if (act === "wnext"){
+      if (S.wiz === 0){ const name = ($("#wName") || {}).value || ""; if (!nameOk(name)){ $("#wErr").textContent = "Escriu el teu nom i almenys un cognom per començar."; $("#wName").focus(); return; } S.name = name.trim().replace(/\s+/g, " "); }
+      S.wiz++; save(); render("#wTitle"); return; }
     if (act === "wprev"){ S.wiz--; save(); render("#wTitle"); return; }
     if (act === "start"){
-      const name = $("#wName").value.trim();
-      if (name.length < 3){ $("#wErr").textContent = "Escriu el teu nom i cognoms per poder lliurar l'informe."; $("#wName").focus(); return; }
-      S.name = name; S.caseId = RA3.caseFor(USER); S.step = 1; save(); render(); goTop(); return;
+      if (!nameOk(S.name)){ S.wiz = 0; save(); render("#wName"); return; }
+      S.caseId = RA3.caseFor(USER); S.step = 1; save(); render(); goTop(); return;
     }
     if (act === "pick"){ tmp[id] = b.dataset.opt; render(`[data-act=pick][data-opt="${b.dataset.opt}"][data-item="${id}"]`); return; }
     if (act === "tog"){ const s = tmp[id] || []; const o = b.dataset.opt; tmp[id] = s.includes(o) ? s.filter(x => x !== o) : s.concat(o); render(`[data-act=tog][data-opt="${o}"][data-item="${id}"]`); return; }
@@ -262,10 +312,14 @@ function startApp(USER){
       sync();
       if (!it || answered(it) || tmp[id] === undefined){ delete tmp[id]; render(); return; }
       S.ans[id] = it.type === "classify" ? Object.assign({}, tmp[id]) : Array.isArray(tmp[id]) ? tmp[id].slice() : tmp[id];
-      delete tmp[id]; save(); render(); const q = $("#q-" + id); if (q){ q.focus({preventScroll:true}); q.scrollIntoView({block:"start", behavior: prefs.motion === "off" ? "auto" : "smooth"}); }
+      delete tmp[id]; save(); render(); const q = $("#q-" + id); if (q){ q.focus({preventScroll:true}); q.scrollIntoView({block:"start", behavior: still() ? "auto" : "smooth"}); }
+      fx(`#q-${id} .feedback`, {autoAlpha:0, y:12}); fx(`#q-${id} .pts b`, {scale:1.8, autoAlpha:0, duration:.6, ease:"back.out(3)"});
+      fx(".q.active", {autoAlpha:0, y:22}, {delay:.25}); fx(".phfoot .btn", {autoAlpha:0, y:14, scale:.95}, {delay:.3});
       return;
     }
-    if (act === "next"){ S.step = S.step < 5 ? S.step + 1 : "report"; save(); render(); goTop(); return; }
+    if (act === "next"){
+      if (typeof S.step === "number" && CASE().phases[S.step - 1].items.some(it => !answered(it))) return;   // fases progressives
+      S.step = S.step < 5 ? S.step + 1 : "report"; save(); render(); goTop(); return; }
     if (act === "copy"){
       const msg = $("#copied"), ta = $("#resultTxt"), fallback = () => { ta.focus(); ta.select(); msg.textContent = "Text seleccionat. Copia'l amb Ctrl+C (o mantén premut al mòbil)."; };
       try { navigator.clipboard.writeText(ta.value).then(() => { msg.textContent = "Copiat. Ara enganxa'l a Classroom."; }, fallback); } catch(err){ fallback(); }
@@ -278,7 +332,7 @@ function startApp(USER){
   main.addEventListener("keydown", e => {
     const sp = e.target.closest && e.target.closest(".spot");
     if (sp && (e.key === "Enter" || e.key === " ")){ e.preventDefault(); explore(sp.dataset.spot); }
-    if (e.target.id === "wName" && e.key === "Enter"){ e.preventDefault(); main.querySelector("[data-act=start]").click(); }
+    if (e.target.id === "wName" && e.key === "Enter"){ e.preventDefault(); main.querySelector("[data-act=wnext]").click(); }
   });
   main.addEventListener("toggle", e => {
     const d = e.target; if (!d.matches || !d.matches("details.hint") || !d.open) return;
