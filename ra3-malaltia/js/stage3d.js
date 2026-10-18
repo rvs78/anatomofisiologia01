@@ -214,7 +214,8 @@
     function frame(now){
       if (!alive) return; raf = requestAnimationFrame(frame);
       if (document.hidden || !el.isConnected) return;
-      const still = reduce(), k = still ? 1 : .14;
+      const dt = Math.min(.25, (now - (frame.last || now)) / 1000); frame.last = now;
+      const still = reduce(), k = still ? 1 : 1 - Math.exp(-dt * 9);   // suavitzat per temps: igual en ordinadors lents
       const moving = Math.abs(tgt.yaw - cur.yaw) + Math.abs(tgt.pitch - cur.pitch) + Math.abs(tgt.dist - cur.dist) > 1e-4;
       if (still && !moving && !dirty) return;
       dirty = false;
