@@ -121,3 +121,8 @@ test("perfil en castellà", () => {
   assert.ok(d.O[0].startsWith("Repasa"));
   assert.ok(d.A.some(s => /ayudas/.test(s)));
 });
+
+test("tornar enrere a l'assistent no queda anul·lat per la fusió", () => {
+  const m = RA3.mergeState({step:"wizard", wiz:1, ans:{}, hints:[], seen:[]}, {step:"wizard", wiz:2, ans:{}, hints:[], seen:[]});
+  assert.equal(m.wiz, 1);
+});

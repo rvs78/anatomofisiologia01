@@ -102,7 +102,7 @@
     return Object.assign({}, mine, {
       name: mine.name || stored.name, caseId: mine.caseId || stored.caseId,
       step: stepRank(stored.step) > stepRank(mine.step) ? stored.step : mine.step,
-      wiz: Math.max(mine.wiz || 0, stored.wiz || 0),
+      wiz: mine.wiz || 0,   // el pas de l'assistent és local: «Anterior» ha de funcionar
       ans: Object.assign({}, mine.ans, stored.ans),
       hints: union(stored.hints, mine.hints), seen: union(mine.seen, stored.seen)
     });

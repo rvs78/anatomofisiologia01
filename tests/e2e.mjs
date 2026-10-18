@@ -137,7 +137,7 @@ try {
     await p2.waitForSelector(`#q-${it.id}.done`);
     assert.ok((await p2.getAttribute(`#q-${it.id} .verdict`, "class")).includes("bad"));
     assert.equal(await p2.textContent("#score"), await p1.textContent("#score"));
-    const st = await p2.evaluate(k => JSON.parse(localStorage.getItem(k)), "ra3-malaltia:" + e);
+    const st = await p2.evaluate(k => JSON.parse(localStorage.getItem(k)), "ra3-malaltia-v2:" + e);
     assert.notEqual(st.ans[it.id], it.a); assert.ok(st.hints.includes("A-h1a"));
     console.log("ok · dues pestanyes: es manté la primera resposta i l'ajuda");
     await ctx.close();
@@ -188,8 +188,8 @@ try {
       const a = await page.$(".q.active"); if (!a) break; const it = itemOf("B", (await a.getAttribute("id")).slice(2));
       if (it.type === "order") { // arrossegar l'últim pas al primer lloc
         const items = await page.$$(`.ordlist[data-item="${it.id}"] .ord`), last = items[items.length - 1], lastId = await last.getAttribute("data-step");
-        const b1 = await last.boundingBox(), b0 = await items[0].boundingBox();
-        await page.mouse.move(b1.x + 20, b1.y + b1.height / 2); await page.mouse.down(); await page.mouse.move(b0.x + 20, b0.y + 4, { steps: 10 }); await page.mouse.up();
+        const b1 = await (await last.$(".grip")).boundingBox(), b0 = await items[0].boundingBox();
+        await page.mouse.move(b1.x + b1.width / 2, b1.y + b1.height / 2); await page.mouse.down(); await page.mouse.move(b0.x + 20, b0.y + 4, { steps: 10 }); await page.mouse.up();
         assert.equal(await page.$eval(`.ordlist[data-item="${it.id}"] .ord`, x => x.dataset.step), lastId, "arrossegar reordena");
         console.log("ok · ordenar arrossegant");
       }

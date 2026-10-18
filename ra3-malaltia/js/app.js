@@ -174,7 +174,7 @@ const sayBtn = text => `<button type="button" class="say" data-act="say" data-te
 function startApp(USER){
   const {CASES, COMPS, TRAPS, PHASES, HINTS} = window.RA3_CASES;
   const ES = () => window.RA3_ES || {}, TESTS = window.RA3_TESTS || {};
-  const KEY = "ra3-malaltia:" + USER;
+  const KEY = "ra3-malaltia-v2:" + USER;   // v2: preguntes i punts nous; el progrés de la v1 no s'hi barreja
   const fresh = () => ({step:"wizard", wiz:0, dia:0, name:"", caseId:null, ans:{}, hints:[], seen:[]});
   let S = fresh();
   try { const raw = localStorage.getItem(KEY); if (raw) S = Object.assign(fresh(), JSON.parse(raw)); } catch(e) {}
@@ -317,7 +317,7 @@ function startApp(USER){
     return `<div class="scenebox">${SCENES.deskScene(p)}</div>`;
   }
   function hintsBox(phase){
-    return `<div class="hints" aria-label="Ajudes"><p class="small muted">${t("hintsIntro")}</p>${phase.hints.map(h0 => {
+    return `<div class="hints"><p class="small muted">${t("hintsIntro")}</p>${phase.hints.map(h0 => {
       const h = hintL(h0), used = S.hints.includes(h.id);
       return `<details class="hint${used ? " used" : ""}" data-hint="${h.id}"${used ? " open" : ""}><summary>${esc(h.title)} <span class="cost">${used ? t("hintUsed") : t("hintCost")}</span></summary><p>${esc(h.text)}</p></details>`; }).join("")}</div>`;
   }
@@ -480,7 +480,7 @@ function startApp(USER){
     if (act === "start"){ if (!nameOk(S.name)){ S.wiz = 0; save(); render("#wName"); return; } S.step = "diabetes"; S.dia = 0; save(); render("#diaTitle"); goTop(); return; }
     if (act === "dnext"){ S.dia = Math.min(S.dia + 1, window.DIABETES.count - 1); save(); render("#diaTitle"); return; }
     if (act === "dprev"){ S.dia = Math.max(S.dia - 1, 0); save(); render("#diaTitle"); return; }
-    if (act === "dreplay"){ window.DIABETES.play(main, S.dia, still()); return; }
+    if (act === "dreplay"){ lastView = null; render("#diaTitle"); return; }
     if (act === "shift"){ S.caseId = RA3.caseFor(USER); S.step = 1; save(); render(); goTop(); return; }
     if (act === "pick"){ tmp[id] = b.dataset.opt; render(`[data-act=pick][data-opt="${b.dataset.opt}"][data-item="${id}"]`); return; }
     if (act === "tog"){ const s = tmp[id] || []; const o = b.dataset.opt; tmp[id] = s.includes(o) ? s.filter(x => x !== o) : s.concat(o); render(`[data-act=tog][data-opt="${o}"][data-item="${id}"]`); return; }
@@ -509,14 +509,14 @@ function startApp(USER){
   });
   function explore(spot){
     if (S.step !== 3 || S.seen.includes(spot)) return;
-    S.seen.push(spot); save(); render(`.spot[data-spot="${spot}"]`);
+    S.seen.push(spot); save(); render(`.spot[data-spot="${spot}"], [data-act=spot], .q.active`);
   }
 
   /* --- arrossegar: targetes a caselles i passos d'una seqüència (ratolí i tacte) */
   let drag = null, dragJustEnded = false;
   main.addEventListener("pointerdown", e => {
-    const chip = e.target.closest(".chip"), ord = e.target.closest(".ord");
-    if (!chip && !(ord && !e.target.closest("button"))) return;
+    const chip = e.target.closest(".chip"), grip = e.target.closest(".ord .grip"), ord = grip && grip.closest(".ord");   // l'ordre s'arrossega només per la nansa: la resta de la fila deixa fer scroll
+    if (!chip && !ord) return;
     const el = chip || ord, r = el.getBoundingClientRect();
     drag = {el, chip:!!chip, id:(chip || ord.parentElement).dataset.item, key:chip ? chip.dataset.card : ord.dataset.step, x0:e.clientX, y0:e.clientY, dx:e.clientX - r.left, dy:e.clientY - r.top, ghost:null, moved:false, w:r.width};
   });
@@ -531,6 +531,7 @@ function startApp(USER){
     const tgt = under && (drag.chip ? under.closest(`.zone[data-item="${drag.id}"]`) : under.closest(`.ordlist[data-item="${drag.id}"] .ord`));
     if (tgt) tgt.classList.add("over");
   }, {passive:false});
+  addEventListener("pointercancel", () => { if (!drag) return; if (drag.ghost) drag.ghost.remove(); drag.el.classList.remove("dragging"); drag = null; render(); });
   addEventListener("pointerup", e => {
     if (!drag) return;
     const d = drag; drag = null;
@@ -546,7 +547,7 @@ function startApp(USER){
     } else {
       const li = under && under.closest(`.ordlist[data-item="${d.id}"] .ord`), ids = tmp[d.id];
       if (li && li.dataset.step !== d.key){ const from = ids.indexOf(d.key), to = ids.indexOf(li.dataset.step); ids.splice(from, 1); ids.splice(to, 0, d.key); }
-      render(`.ordlist[data-item="${d.id}"] .ord[data-step="${d.key}"] .sc`);
+      render(`.ordlist[data-item="${d.id}"] .ord[data-step="${d.key}"] .sc:not([disabled])`);
     }
   });
   main.addEventListener("keydown", e => {

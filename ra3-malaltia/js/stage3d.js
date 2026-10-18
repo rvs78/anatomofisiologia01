@@ -229,12 +229,13 @@
       renderer.render(scene, camera); placeLabels();
       el.dataset.yaw = cur.yaw.toFixed(3); el.dataset.dist = cur.dist.toFixed(3);
     }
-    if (window.gsap) gsap.ticker.add(() => { if (gsap.globalTimeline.getChildren(false, true, false).length) dirty = true; });
+    const onTick = () => { if (gsap.globalTimeline.getChildren(false, true, false).length) dirty = true; };
+    if (window.gsap) gsap.ticker.add(onTick);
     raf = requestAnimationFrame(frame);
     return {
       el,
       update(opts){ dirty = true; if (built.update) { const l = built.update(opts); if (l) setLabels(l); } },
-      dispose(){ alive = false; cancelAnimationFrame(raf); ro.disconnect(); scene.traverse(o => { if (o.geometry) o.geometry.dispose(); [].concat(o.material || []).forEach(m => { if (m.map) m.map.dispose(); m.dispose(); }); }); renderer.dispose(); el.remove(); }
+      dispose(){ alive = false; cancelAnimationFrame(raf); ro.disconnect(); if (window.gsap) gsap.ticker.remove(onTick); scene.traverse(o => { if (o.geometry) o.geometry.dispose(); [].concat(o.material || []).forEach(m => { if (m.map) m.map.dispose(); m.dispose(); }); }); renderer.dispose(); renderer.forceContextLoss(); el.remove(); }
     };
   }
 
