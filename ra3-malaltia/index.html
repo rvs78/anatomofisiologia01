@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3E%3Cpath fill=%27%230e8a5f%27 d=%27M9 2h6v7h7v6h-7v7H9v-7H2V9h7z%27/%3E%3C/svg%3E">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Activitat gamificada del RA3 La malaltia: un cas clínic des del taulell de la farmàcia fins al tractament. CFGM Farmàcia i Parafarmàcia.">
+<script>
+/* Si el navegador o GitHub Pages serveixen una versió antiga, es carrega la nova */
+window.APP_VERSION = "1";
+(function(){ try { fetch("version.json?t=" + Date.now(), {cache:"no-store"}).then(function(r){ return r.json(); }).then(function(j){ if (j && j.v && j.v !== window.APP_VERSION && location.search.indexOf("v=" + j.v) < 0) location.replace(location.pathname + "?v=" + j.v); }).catch(function(){}); } catch(e) {} })();
+</script>
+<title>El cas del taulell · RA3 La malaltia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Lexend:wght@400;600&display=swap">
+<link rel="stylesheet" href="css/app.css?v=1">
+</head>
+<body>
+
+<section class="login" id="login" aria-labelledby="lgTitle">
+  <div class="lgart" aria-hidden="true" id="lgArt"></div>
+  <form class="lgcard" id="lgForm" novalidate>
+    <p class="kicker">MP0061 Anatomofisiologia i patologia bàsiques · RA3</p>
+    <h1 class="ptitle" id="lgTitle">El cas del taulell</h1>
+    <p class="lead">Arriba un pacient a la farmàcia. Acompanya'l de la primera pregunta fins al tractament.</p>
+    <label class="fl" for="lgEmail">Correu de l'institut</label>
+    <input type="email" id="lgEmail" autocomplete="username" inputmode="email" placeholder="nom.cognom@isvh.cat" required>
+    <label class="fl" for="lgPass">Contrasenya</label>
+    <input type="password" id="lgPass" autocomplete="current-password" required>
+    <p class="lgerr" id="lgErr" role="alert"></p>
+    <button type="submit" class="btn big">Entra a la farmàcia</button>
+    <p class="small muted">Només per a l'alumnat amb correu @isvh.cat. La contrasenya te la dona el professorat.</p>
+  </form>
+</section>
+
+<div id="app" hidden>
+  <header class="bar">
+    <div class="brand"><svg class="cross" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 2h6v7h7v6h-7v7H9v-7H2V9h7z"/></svg><b>El cas del taulell</b></div>
+    <ol class="steps" id="steps" aria-label="Fases de l'activitat"></ol>
+    <div class="score" id="score" aria-live="polite"></div>
+    <div class="tools">
+      <button type="button" class="btn ghost small" id="a11yBtn" aria-expanded="false" aria-controls="a11y">Aa</button>
+      <span class="who" id="who"></span>
+      <button type="button" class="btn ghost small" id="logout">Surt</button>
+    </div>
+    <div class="a11y" id="a11y" hidden role="dialog" aria-label="Opcions d'accessibilitat">
+      <h2>Opcions de lectura</h2>
+      <fieldset><legend>Mida del text</legend><div class="seg">
+        <label><input type="radio" name="size" value="m"> Normal</label>
+        <label><input type="radio" name="size" value="l"> Gran</label>
+        <label><input type="radio" name="size" value="xl"> Molt gran</label></div></fieldset>
+      <fieldset><legend>Tipus de lletra</legend><div class="seg">
+        <label><input type="radio" name="font" value="atkinson"> Molt llegible</label>
+        <label><input type="radio" name="font" value="lexend"> Lectura fàcil</label></div></fieldset>
+      <fieldset><legend>Contrast</legend><div class="seg">
+        <label><input type="radio" name="contrast" value="normal"> Normal</label>
+        <label><input type="radio" name="contrast" value="high"> Alt</label></div></fieldset>
+      <fieldset><legend>Animacions</legend><div class="seg">
+        <label><input type="radio" name="motion" value="on"> Sí</label>
+        <label><input type="radio" name="motion" value="off"> No</label></div></fieldset>
+      <button type="button" class="btn small" id="a11yClose">Fet</button>
+    </div>
+  </header>
+  <main id="main" tabindex="-1"></main>
+</div>
+
+<script src="js/core.js?v=1"></script>
+<script src="js/cases.js?v=1"></script>
+<script src="js/scenes.js?v=1"></script>
+<script src="js/app.js?v=1"></script>
+<script src="js/login.js?v=1"></script>
+</body>
+</html>

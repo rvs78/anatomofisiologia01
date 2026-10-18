@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3E%3Cpath fill=%27%230e8a5f%27 d=%27M9 2h6v7h7v6h-7v7H9v-7H2V9h7z%27/%3E%3C/svg%3E">
+<meta name="robots" content="noindex, nofollow">
+<title>Verifica un informe · RA3</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,800&display=swap">
+<link rel="stylesheet" href="css/app.css?v=1">
+<style>
+  .vbox{max-width:760px;margin:0 auto;padding:28px 16px 48px}
+  #out{margin-top:14px;padding:12px 14px;border-radius:10px;font-weight:700}
+  #out.ok{background:var(--ok-soft);color:var(--ok)} #out.bad{background:var(--bad-soft);color:var(--bad)} #out.na{background:var(--warn-soft);color:var(--warn)}
+  #out dl{display:grid;grid-template-columns:max-content 1fr;gap:2px 14px;font-weight:400;color:var(--ink);margin:8px 0 0}
+</style>
+</head>
+<body>
+<main class="vbox">
+  <h1 class="ptitle">Verifica un informe</h1>
+  <p>Enganxa el text que l'alumne ha lliurat a Classroom. La pàgina recalcula el codi de verificació a partir de les dades del text i et diu si coincideix.</p>
+  <p class="small muted">El codi detecta si algú ha editat la puntuació a mà. No és una protecció forta: serveix per revisar els lliuraments.</p>
+  <label class="fl" for="txt">Text de l'informe</label>
+  <textarea id="txt" class="copy" rows="14" placeholder="RA3 · LA MALALTIA · EL CAS DEL TAULELL&#10;Alumne/a: …"></textarea>
+  <div class="row" style="margin-top:10px"><button type="button" class="btn" id="go">Comprova el codi</button></div>
+  <div id="out" role="status" hidden></div>
+</main>
+<script src="js/core.js?v=1"></script>
+<script>
+(function(){
+  var out = document.getElementById("out");
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  document.getElementById("go").onclick = function(){
+    var f = RA3.parseResultText(document.getElementById("txt").value);
+    out.hidden = false;
+    if (!f){ out.className = "na"; out.textContent = "Text no reconegut. Enganxa l'informe sencer, des de la primera línia fins al codi."; return; }
+    var ok = RA3.verifCode(f) === f.code;
+    var sum = f.phases.reduce(function(a, b){ return a + b; }, 0);
+    out.className = ok ? "ok" : "bad";
+    out.innerHTML = (ok ? "Codi correcte: l'informe no s'ha modificat." : "El codi no quadra: alguna dada de l'informe s'ha canviat.") +
+      "<dl><dt>Alumne/a</dt><dd>" + esc(f.name) + "</dd><dt>Correu</dt><dd>" + esc(f.email) + "</dd><dt>Cas</dt><dd>" + esc(f.caseId) + " (esperat pel correu: " + RA3.caseFor(f.email) + ")</dd><dt>Total</dt><dd>" + f.total + " / 1000 · nota " + RA3.grade(f.total) + "</dd><dt>Suma de fases</dt><dd>" + sum + (sum === f.total ? " (quadra amb el total)" : " (no quadra amb el total)") + "</dd></dl>";
+  };
+})();
+</script>
+</body>
+</html>
