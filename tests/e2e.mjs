@@ -18,7 +18,9 @@ await new Promise(r => setTimeout(r, 800));
 const emailFor = id => { for (let i = 0; ; i++) { const e = `alumne${i}@isvh.cat`; if (RA3.caseFor(e) === id) return e; } };
 const items = id => CASES[id].phases.flatMap(p => p.items);
 
-async function login(page, email, pass = "far2026") {
+const PASS = process.env.RA3_PASS;
+if (!PASS) { console.error("Cal RA3_PASS=<contrasenya del curs>"); process.exit(2); }
+async function login(page, email, pass = PASS) {
   await page.goto(BASE);
   await page.fill("#lgEmail", email); await page.fill("#lgPass", pass);
   await page.click("button[type=submit]");
@@ -109,7 +111,7 @@ try {
     await ctx.close();
   }
   const ctx = await browser.newContext(); const page = await ctx.newPage();
-  for (const [email, pass, msg] of [["a@isvh.cat.evil.com", "far2026", "@isvh.cat"], ["nom+1@isvh.cat", "far2026", "@isvh.cat"], ["nom@isvh.cat", "dolenta", "contrasenya"]]) {
+  for (const [email, pass, msg] of [["a@isvh.cat.evil.com", PASS, "@isvh.cat"], ["nom+1@isvh.cat", PASS, "@isvh.cat"], ["nom@isvh.cat", "dolenta", "contrasenya"]]) {
     await login(page, email, pass);
     assert.match(await page.textContent("#lgErr"), new RegExp(msg));
   }

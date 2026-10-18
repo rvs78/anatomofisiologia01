@@ -1,0 +1,8 @@
+# GitHub Pages (desplegament des de la branca main): només es publiquen index.html i les apps.
+# Jekyll ja ignora les carpetes que comencen per punt (.claude, .github).
+exclude:
+  - docs
+  - tests
+  - package.json
+  - README.md
+include: []

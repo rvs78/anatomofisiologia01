@@ -35,5 +35,5 @@ Tot el contingut surt dels apunts del RA3 (resum a `docs/ra3-contingut.md`). Dis
 
 ```bash
 npm test                 # lògica i integritat dels casos (node --test)
-node tests/e2e.mjs       # recorregut complet a Chromium (cal playwright-core; PW_MODULE=camí si no és al NODE_PATH)
+RA3_PASS=… node tests/e2e.mjs   # recorregut complet a Chromium (cal playwright-core; PW_MODULE=camí si no és al NODE_PATH)
 ```

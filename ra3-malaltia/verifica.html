@@ -2,12 +2,13 @@
 <html lang="ca">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-1x7SbiQ5QsSMWJRxAtm019mMPNj/K3i3AUuq2cfmTds='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3E%3Cpath fill=%27%230e8a5f%27 d=%27M9 2h6v7h7v6h-7v7H9v-7H2V9h7z%27/%3E%3C/svg%3E">
 <meta name="robots" content="noindex, nofollow">
 <title>Verifica un informe · RA3</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,800&display=swap">
-<link rel="stylesheet" href="css/app.css?v=2">
+<link rel="stylesheet" href="css/app.css?v=3">
 <style>
   .vbox{max-width:760px;margin:0 auto;padding:28px 16px 48px}
   #out{margin-top:14px;padding:12px 14px;border-radius:10px;font-weight:700}
@@ -25,7 +26,7 @@
   <div class="row" style="margin-top:10px"><button type="button" class="btn" id="go">Comprova el codi</button></div>
   <div id="out" role="status" hidden></div>
 </main>
-<script src="js/core.js?v=2"></script>
+<script src="js/core.js?v=3"></script>
 <script>
 (function(){
   var out = document.getElementById("out");

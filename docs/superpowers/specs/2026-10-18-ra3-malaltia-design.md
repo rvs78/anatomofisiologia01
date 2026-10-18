@@ -32,7 +32,7 @@ Tot el text de l'app és en **català**, amb la terminologia dels apunts del doc
 ## 3. Decisions del docent (tal com les ha pres)
 
 - Idioma català.
-- Accés: correu obligatori acabat en `@isvh.cat` i contrasenya `far2026`.
+- Accés: correu obligatori acabat en `@isvh.cat` i una contrasenya comuna que el docent dona a classe (no s'escriu al repositori).
 - Pantalla 2: instruccions per passos en format **wizard**.
 - 5 fases: (1) farmàcia en primera persona, pacient al taulell que fa preguntes; (2) etiologia: causa / agent; (3) signes i símptomes en una consulta mèdica; (4) diagnòstic i proves, amb dibuixos o gràfics dinàmics; (5) comparar resultats amb signes i símptomes, determinar i classificar la malaltia i decidir tractament.
 - Tot avaluat: suma i resta punts. Ajudes desplegables que resten punts.

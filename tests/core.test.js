@@ -10,7 +10,9 @@ test("valida el correu de l'institut", () => {
 });
 
 test("la contrasenya només hi és com a empremta SHA-256", () => {
-  assert.equal(RA3.PASS_SHA256, crypto.createHash("sha256").update("far2026").digest("hex"));
+  assert.match(RA3.PASS_SHA256, /^[0-9a-f]{64}$/);
+  // RA3_PASS=<contrasenya> npm test comprova que l'empremta correspon a la contrasenya del curs
+  if (process.env.RA3_PASS) assert.equal(RA3.PASS_SHA256, crypto.createHash("sha256").update(process.env.RA3_PASS).digest("hex"));
 });
 
 test("el cas surt del correu, és estable i es reparteix", () => {

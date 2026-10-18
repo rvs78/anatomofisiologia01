@@ -13,7 +13,7 @@
 ## Global Constraints
 
 - All user-facing text in Catalan, terminology from `docs/ra3-contingut.md`; nothing asked that is not in that file.
-- Login: email must match `/^[a-z0-9._%+-]+@isvh\.cat$/` after `trim().toLowerCase()`; password `far2026` compared only as SHA-256 hex (never stored in clear in the code).
+- Login: email must match `/^[a-z0-9._%+-]+@isvh\.cat$/` after `trim().toLowerCase()`; course password compared only as SHA-256 hex (never stored in clear in the code).
 - 5 phases × 200 points = 1.000; phase score floored at 0; grade = total/100 with one decimal.
 - Each hint opened costs 15 points once; correct sums `pts`, wrong subtracts `round(pts/2)`.
 - Phase 4 test kinds: `need` (+pts if requested), `neutral` (0, explanation), `no` (−round(pts/2) if requested).
@@ -74,7 +74,7 @@ TRAPS = { antibiotic, diagnosticar, signeSimptoma, provesInnecessaries, ... } //
 
 **Interfaces — Produces (window.RA3 / module.exports):**
 - `normEmail(s:string):string`, `isValidEmail(s:string):boolean`
-- `PASS_SHA256:string` (hex of `far2026`)
+- `PASS_SHA256:string` (hex of the course password)
 - `fnv1a(s:string):number` (uint32), `caseFor(email:string):"A"|"B"|"C"`
 - `itemMax(item):number`, `itemDelta(item, answer):number` (answer: optId | optId[] | {cardId:binId} | testId[] | undefined → 0)
 - `phaseScore(phase, answers:{[itemId]:any}, hintsOpen:string[]):number` (floored 0)
@@ -86,7 +86,7 @@ TRAPS = { antibiotic, diagnosticar, signeSimptoma, provesInnecessaries, ... } //
 
 - [ ] **Step 1: Write failing tests** in `tests/core.test.js`:
   - `isValidEmail("  Nom.Cognom@ISVH.CAT ") === true`; false for `"a@isvh.cat.evil.com"`, `"@isvh.cat"`, `"a@isvh.com"`.
-  - `PASS_SHA256 === sha256hex("far2026")` (compute with `crypto.createHash`).
+  - `PASS_SHA256` is 64 hex chars (and equals sha256(RA3_PASS) when that env var is set) (compute with `crypto.createHash`).
   - `caseFor` returns only A/B/C and is stable for the same normalised email; over 300 synthetic emails each case gets ≥ 60.
   - `itemDelta` single: correct → `pts`, wrong → `-Math.round(pts/2)`, undefined → 0. Classify with 4 cards, pts 40: 3 right 1 wrong → `30 - 5 = 25`. Tests item: need(20)+need(20)+no(10)+neutral picked → `40 - 5 = 35`.
   - `phaseScore` with all wrong and 2 hints → 0; with all right and 0 hints → sum of `itemMax`.
