@@ -19,6 +19,14 @@
     for (let i = 0; i < str.length; i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
     return h >>> 0;
   }
+  /* Barreja estable: mateixa llavor → mateix ordre (Fisher–Yates amb mulberry32) */
+  function shuffleFor(seed, arr){
+    let a = fnv1a(String(seed)) || 1;
+    const rnd = () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    const out = arr.slice();
+    for (let i = out.length - 1; i > 0; i--){ const j = Math.floor(rnd() * (i + 1)); [out[i], out[j]] = [out[j], out[i]]; }
+    return out;
+  }
   const caseFor = email => ["A","B","C"][fnv1a("cas|" + normEmail(email)) % 3];
 
   /* ---------- Puntuació */
@@ -39,6 +47,10 @@
         const share = item.pts / item.cards.length;
         return Math.round(item.cards.reduce((s, c) => s + (ans[c.id] === undefined ? 0 : ans[c.id] === c.a ? share : -share / 2), 0));
       }
+      case "order": {
+        const share = item.pts / item.steps.length;
+        return Math.round(item.steps.reduce((s, st, i) => s + (ans[i] === st.id ? share : -share / 2), 0));
+      }
       case "tests": return item.tests.reduce((s, t) => !ans.includes(t.id) ? s : t.kind === "need" ? s + t.pts : t.kind === "no" ? s - half(t.pts) : s, 0);
     }
     return 0;
@@ -50,6 +62,7 @@
       case "multi": return ans.filter(id => !item.a.includes(id)).length + item.a.filter(id => !ans.includes(id)).length;
       case "classify": return item.cards.filter(c => ans[c.id] !== undefined && ans[c.id] !== c.a).length;
       case "tests": return item.tests.filter(t => t.kind === "no" && ans.includes(t.id)).length;
+      case "order": return item.steps.filter((st, i) => ans[i] !== st.id).length;
     }
     return 0;
   }
@@ -76,7 +89,7 @@
       if (it.type === "single") (it.options.find(o => o.id === a) || {}).trap && add(it.options.find(o => o.id === a).trap);
       else if (it.type === "multi") a.forEach(id => { const o = it.options.find(x => x.id === id); if (o && !it.a.includes(id)) add(o.trap); });
       else if (it.type === "tests") it.tests.forEach(t => { if (t.kind === "no" && a.includes(t.id)) add(t.trap || "provesInnecessaries"); });
-      else if (it.type === "classify" && itemErrors(it, a) > 0) add(it.trap);
+      else if ((it.type === "classify" || it.type === "order") && itemErrors(it, a) > 0) add(it.trap);
     }));
     return out;
   }
@@ -144,5 +157,5 @@
   }
 
   return {DOMAIN_RE, normEmail, isValidEmail, PASS_SHA256, HINT_COST, PHASE_MAX, TOTAL_MAX, PH_NAMES,
-    fnv1a, caseFor, mergeState, itemMax, itemDelta, itemErrors, phaseScore, compStats, trapsHit, dafo, grade, verifCode, resultText, parseResultText};
+    fnv1a, shuffleFor, caseFor, mergeState, itemMax, itemDelta, itemErrors, phaseScore, compStats, trapsHit, dafo, grade, verifCode, resultText, parseResultText};
 });

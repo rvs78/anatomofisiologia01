@@ -91,3 +91,25 @@ test("fusionar estats de dues pestanyes conserva la primera resposta i les ajude
   assert.equal(RA3.mergeState(mine, null), mine);
   assert.equal(RA3.mergeState({step:"report", ans:{}, hints:[], seen:[]}, {step:5, ans:{}, hints:[], seen:[]}).step, "report");
 });
+
+test("barreja determinista per alumne i ítem", () => {
+  const arr = ["a","b","c","d","e","f"];
+  const s1 = RA3.shuffleFor("anna@isvh.cat|X1", arr), s2 = RA3.shuffleFor("anna@isvh.cat|X1", arr);
+  assert.deepEqual(s1, s2);
+  assert.deepEqual(s1.slice().sort(), arr);
+  assert.deepEqual(arr, ["a","b","c","d","e","f"], "no muta l'original");
+  let differs = 0, firstSame = 0;
+  for (let i = 0; i < 60; i++){ const s = RA3.shuffleFor("alumne" + i + "@isvh.cat|X1", arr); if (s.join() !== arr.join()) differs++; if (s[0] === "a") firstSame++; }
+  assert.ok(differs >= 55, "gairebé sempre canvia l'ordre");
+  assert.ok(firstSame < 25, "la primera opció no és sempre la mateixa");
+});
+
+test("exercici d'ordenar", () => {
+  const ord = {id:"o", type:"order", steps:[{id:"1"},{id:"2"},{id:"3"},{id:"4"}], pts:20};
+  assert.equal(RA3.itemMax(ord), 20);
+  assert.equal(RA3.itemDelta(ord, ["1","2","3","4"]), 20);
+  assert.equal(RA3.itemDelta(ord, ["2","1","3","4"]), 5);   // 2 bé (+10), 2 malament (−5)
+  assert.equal(RA3.itemErrors(ord, ["2","1","3","4"]), 2);
+  assert.equal(RA3.itemErrors(ord, ["1","2","3","4"]), 0);
+  assert.equal(RA3.itemDelta(ord, undefined), 0);
+});
