@@ -46,7 +46,7 @@ async function answer(page, it, good) {
   if (it.type === "single") await page.click(sel("pick", `[data-opt="${good ? it.a : it.options.find(o => o.id !== it.a).id}"]`));
   if (it.type === "multi") for (const o of it.options.filter(o => good ? it.a.includes(o.id) : !it.a.includes(o.id))) await page.click(sel("tog", `[data-opt="${o.id}"]`));
   if (it.type === "classify") {
-    if (it.explore) for (const s of [...new Set(it.cards.map(k => k.spot))]) await page.click(`[data-act=spot][data-spot="${s}"]`);
+    if (it.explore) for (const s of [...new Set(it.cards.map(k => k.spot))]) { const b = await page.$(`[data-act=spot][data-spot="${s}"]`); if (b) await b.click(); }   // les ja explorades no tenen botó
     for (const k of it.cards) { await page.click(sel("chip", `[data-card="${k.id}"]`)); await page.click(sel("zone", `[data-bin="${good ? k.a : it.bins.find(b => b.id !== k.a).id}"]`)); }
   }
   if (it.type === "order" && good) for (let k = 0; k < it.steps.length; k++) {
