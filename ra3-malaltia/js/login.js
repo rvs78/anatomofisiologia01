@@ -11,7 +11,7 @@
     img.alt = ""; img.className = "lgphoto"; img.decoding = "async";
     img.onload = function(){ art.textContent = ""; art.classList.add("photo"); art.appendChild(img); };
     img.onerror = function(){ art.innerHTML = SCENES.technicianArt(); };
-    img.src = "img/tecnica.webp?v=8";
+    img.src = "img/tecnica.webp?v=9";
   })();
   applyStatic();
   function hex(buf){ return Array.prototype.map.call(new Uint8Array(buf), function(b){ return ("0" + b.toString(16)).slice(-2); }).join(""); }

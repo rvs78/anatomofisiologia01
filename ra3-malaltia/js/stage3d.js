@@ -19,7 +19,7 @@
     const t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; t.anisotropy = 4; t.userData = {canvas:c, ctx:g, draw}; return t;
   }
   /* imatges generades (img/*.webp): es carreguen sense bloquejar i es redibuixa quan arriben */
-  const IMG_V = "?v=8";
+  const IMG_V = "?v=9";
   function imgTex(url, onload){ const t = new T.TextureLoader().load(url + IMG_V, onload); t.encoding = T.sRGBEncoding; t.anisotropy = 4; return t; }
   function poster(ctx, url, w, h, x, y, z, rotY){
     const {scene, mesh, box, mat} = ctx, g = new T.Group(); g.position.set(x, y, z); g.rotation.y = rotY || 0;
