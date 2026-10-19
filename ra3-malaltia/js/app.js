@@ -6,7 +6,8 @@ const SPEAK_ICON = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><pat
 
 /* ================================================== Preferències */
 const PREF_KEY = "ra3-malaltia-prefs";
-const prefs = Object.assign({size:"m", contrast:"normal", font:"atkinson", motion:"on", d3:"on", sound:"off", lang:"ca"}, (() => { try { return JSON.parse(localStorage.getItem(PREF_KEY)) || {}; } catch(e){ return {}; } })());
+const prefs = Object.assign({size:"m", contrast:"normal", font:"montserrat", motion:"on", d3:"on", sound:"off", lang:"ca"}, (() => { try { return JSON.parse(localStorage.getItem(PREF_KEY)) || {}; } catch(e){ return {}; } })());
+if (!prefs.fv){ if (prefs.font === "atkinson") prefs.font = "montserrat"; prefs.fv = 2; }   // v7: Montserrat passa a ser la lletra per defecte
 function applyPrefs(){
   const r = document.documentElement;
   r.dataset.size = prefs.size; r.dataset.font = prefs.font; r.dataset.motion = prefs.motion; r.lang = LANG();
@@ -19,10 +20,11 @@ const LANG = () => prefs.lang === "es" ? "es" : "ca";
 const UI = {
   ca:{
     kicker:"MP0061 Anatomofisiologia i patologia bàsiques · RA3", lead:"Arriba un pacient a la farmàcia. Acompanya'l de la primera pregunta fins al tractament.",
-    email:"Correu de l'institut", pass:"Contrasenya", enter:"Entra a la farmàcia", note:"Només per a l'alumnat amb correu @isvh.cat. La contrasenya te la dona el professorat.",
-    errEmail:"Escriu el teu correu de l'institut. Ha d'acabar en @isvh.cat.", errPass:"La contrasenya no és correcta. Torna-ho a provar.", errCrypto:"Aquest navegador no pot validar l'accés. Fes servir Chrome, Edge, Firefox o Safari actualitzats.",
+    email:"Correu de l'institut", pass:"Contrasenya", enter:"Entra a la farmàcia", note:"Experiència educativa dissenyada per Rubén Vallejo - FP Sanitària Vall d'Hebron",
+    errEmail:"Aquest correu no té accés. Escriu el teu correu de l'institut.", errPass:"La contrasenya no és correcta. Torna-ho a provar.", errCrypto:"Aquest navegador no pot validar l'accés. Fes servir Chrome, Edge, Firefox o Safari actualitzats.",
     brand:"El cas del taulell", logout:"Surt", pts:"punts", langBtn:"ES", langLabel:"Llegeix en castellà",
-    a11yTitle:"Opcions de lectura", size:"Mida del text", sNormal:"Normal", sL:"Gran", sXL:"Molt gran", font:"Tipus de lletra", fA:"Molt llegible", fL:"Lectura fàcil",
+    a11yTitle:"Opcions de lectura", size:"Mida del text", sNormal:"Normal", sL:"Gran", sXL:"Molt gran", font:"Tipus de lletra", fM:"Clara (Montserrat)", fA:"Molt llegible", fL:"Lectura fàcil",
+    restart:"Torna a començar", rsTitle:"Vols tornar a començar?", rsText:"S'esborraran les teves respostes, la puntuació i l'informe d'aquest navegador. No es podran recuperar.", rsTip:"Abans, comprova que ja has copiat i lliurat l'informe a Classroom.", rsYes:"Sí, esborra-ho i torna a començar", rsNo:"Cancel·la",
     contrast:"Contrast", cN:"Normal", cH:"Alt", motion:"Animacions", yes:"Sí", no:"No", d3:"Escenes 3D", d3off:"No (ordinadors lents)", sound:"So en encertar i fallar", done:"Fet",
     listen:"Escolta", noVoice:"Lectura no disponible",
     wizStep:(n, m) => "Instruccions · pas " + n + " de " + m, prev:"Anterior", next:"Següent", toDiabetes:"Abans de començar",
@@ -55,10 +57,11 @@ const UI = {
   },
   es:{
     kicker:"MP0061 Anatomofisiología y patología básicas · RA3", lead:"Llega un paciente a la farmacia. Acompáñalo desde la primera pregunta hasta el tratamiento.",
-    email:"Correo del instituto", pass:"Contraseña", enter:"Entra en la farmacia", note:"Solo para el alumnado con correo @isvh.cat. La contraseña te la da el profesorado.",
-    errEmail:"Escribe tu correo del instituto. Debe terminar en @isvh.cat.", errPass:"La contraseña no es correcta. Vuelve a intentarlo.", errCrypto:"Este navegador no puede validar el acceso. Usa Chrome, Edge, Firefox o Safari actualizados.",
+    email:"Correo del instituto", pass:"Contraseña", enter:"Entra en la farmacia", note:"Experiència educativa dissenyada per Rubén Vallejo - FP Sanitària Vall d'Hebron",
+    errEmail:"Este correo no tiene acceso. Escribe tu correo del instituto.", errPass:"La contraseña no es correcta. Vuelve a intentarlo.", errCrypto:"Este navegador no puede validar el acceso. Usa Chrome, Edge, Firefox o Safari actualizados.",
     brand:"El caso del mostrador", logout:"Salir", pts:"puntos", langBtn:"CA", langLabel:"Llegeix en català",
-    a11yTitle:"Opciones de lectura", size:"Tamaño del texto", sNormal:"Normal", sL:"Grande", sXL:"Muy grande", font:"Tipo de letra", fA:"Muy legible", fL:"Lectura fácil",
+    a11yTitle:"Opciones de lectura", size:"Tamaño del texto", sNormal:"Normal", sL:"Grande", sXL:"Muy grande", font:"Tipo de letra", fM:"Clara (Montserrat)", fA:"Muy legible", fL:"Lectura fácil",
+    restart:"Volver a empezar", rsTitle:"¿Quieres volver a empezar?", rsText:"Se borrarán tus respuestas, la puntuación y el informe de este navegador. No se podrán recuperar.", rsTip:"Antes, comprueba que ya has copiado y entregado el informe en Classroom.", rsYes:"Sí, bórralo y vuelve a empezar", rsNo:"Cancelar",
     contrast:"Contraste", cN:"Normal", cH:"Alto", motion:"Animaciones", yes:"Sí", no:"No", d3:"Escenas 3D", d3off:"No (ordenadores lentos)", sound:"Sonido al acertar y fallar", done:"Hecho",
     listen:"Escucha", noVoice:"Lectura no disponible",
     wizStep:(n, m) => "Instrucciones · paso " + n + " de " + m, prev:"Anterior", next:"Siguiente", toDiabetes:"Antes de empezar",
@@ -181,7 +184,12 @@ function startApp(USER){
   const stored = () => { try { return JSON.parse(localStorage.getItem(KEY)); } catch(e){ return null; } };
   const sync = () => { S = RA3.mergeState(S, stored()); };   // una altra pestanya pot haver respost abans
   const save = () => { sync(); try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {} };
-  addEventListener("storage", e => { if (e.key === KEY){ sync(); render(); } });
+  addEventListener("storage", e => { if (e.key === KEY){ if (e.newValue === null){ location.reload(); return; } sync(); render(); } });
+  /* --- tornar a començar (només a l'informe final): avisa que s'esborra tot */
+  const rsBtn = $("#restart"), rsDlg = $("#restartDlg");
+  rsBtn.onclick = () => { if (rsDlg.showModal) rsDlg.showModal(); else rsDlg.setAttribute("open", ""); $("#rsNo").focus(); };
+  $("#rsNo").onclick = () => { if (rsDlg.close) rsDlg.close(); else rsDlg.removeAttribute("open"); rsBtn.focus(); };
+  $("#rsYes").onclick = () => { try { localStorage.removeItem(KEY); } catch(e) {} if (window.speechSynthesis) speechSynthesis.cancel(); location.reload(); };
   const tmp = {}, pick = {};       // seleccions encara no comprovades; targeta triada per classificar
   let infoTest = null;
   const main = $("#main");
@@ -228,6 +236,7 @@ function startApp(USER){
   let shown = 0;
   function renderBar(){
     const cur = typeof S.step === "number" ? S.step : S.step === "report" ? 6 : 0;
+    rsBtn.hidden = S.step !== "report";
     $("#steps").innerHTML = PHASES.map((p, i) => `<li class="${i + 1 < cur ? "done" : i + 1 === cur ? "now" : ""}"${i + 1 === cur ? ' aria-current="step"' : ""}><span>${i + 1}</span> ${esc(PH(i).title)}</li>`).join("");
     const to = total(), sc = $("#score");
     if (!S.caseId){ sc.innerHTML = ""; return; }

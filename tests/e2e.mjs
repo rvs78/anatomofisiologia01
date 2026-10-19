@@ -97,6 +97,15 @@ try {
       assert.match(txt, /TOTAL: 1000\/1000/); assert.match(txt, new RegExp("Cas: " + id));
       assert.ok((await page.textContent(".dafo h2")).includes("perfil"), "perfil de tècnic");
       if (mobile) await noHScroll(page, "informe");
+      if (id === "A" && !mobile) { // tornar a començar: avisa, es pot cancel·lar i esborra el progrés
+        assert.ok(await page.isVisible("#restart"), "botó de reinici a l'informe");
+        await page.click("#restart"); assert.ok(await page.isVisible("#restartDlg"), "avís abans d'esborrar");
+        await page.click("#rsNo"); assert.ok(await page.isVisible(".report"), "cancel·lar manté l'informe");
+        await page.click("#restart"); await page.click("#rsYes"); await page.waitForSelector(".wiz");
+        assert.equal(await page.evaluate(k => localStorage.getItem(k), "ra3-malaltia-v2:" + emailFor(id)), null, "progrés esborrat");
+        assert.ok(!(await page.isVisible("#restart")), "el botó només surt a l'informe");
+        console.log("ok · tornar a començar: avís, cancel·lar i esborrar");
+      }
       await page.goto(BASE + "verifica.html"); await page.fill("#txt", txt); await page.click("#go");
       assert.equal(await page.getAttribute("#out", "class"), "ok", "verificació " + id);
       await page.fill("#txt", txt.replace("TOTAL: 1000", "TOTAL: 999")); await page.click("#go");
@@ -205,7 +214,10 @@ try {
     await ctx.close();
   }
   const ctx = await browser.newContext(); const page = await ctx.newPage();
-  for (const [email, pass, msg] of [["a@isvh.cat.evil.com", PASS, "@isvh.cat"], ["nom+1@isvh.cat", PASS, "@isvh.cat"], ["nom@isvh.cat", "dolenta", "contrasenya"]]) {
+  await page.goto(BASE);
+  assert.ok(!(await page.textContent("#login")).includes("@isvh.cat"), "la portada no revela el domini");
+  assert.match(await page.textContent(".lgcredit"), /Rubén Vallejo - FP Sanitària Vall d'Hebron/);
+  for (const [email, pass, msg] of [["a@isvh.cat.evil.com", PASS, "no té accés"], ["nom+1@isvh.cat", PASS, "no té accés"], ["nom@isvh.cat", "dolenta", "contrasenya"]]) {
     await login(page, email, pass);
     assert.match(await page.textContent("#lgErr"), new RegExp(msg));
   }

@@ -2,18 +2,18 @@
 <html lang="ca">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-8XjqFL/6XrcjM0XuKy7BTEwqGGO8p5XO3hZWXMw9uZc='; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-0oWfn2gAcYLwnmsiRhVhi/7VHMX8Ssf5IYV7O9p5k9M='; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3E%3Cpath fill=%27%230e8a5f%27 d=%27M9 2h6v7h7v6h-7v7H9v-7H2V9h7z%27/%3E%3C/svg%3E">
 <meta name="robots" content="noindex, nofollow">
 <meta name="description" content="Activitat gamificada del RA3 La malaltia: un cas clínic des del taulell de la farmàcia fins al tractament. CFGM Farmàcia i Parafarmàcia.">
 <script>
 /* Si el navegador o GitHub Pages serveixen una versió antiga, es carrega la nova */
-window.APP_VERSION = "7";
+window.APP_VERSION = "8";
 (function(){ try { fetch("version.json?t=" + Date.now(), {cache:"no-store"}).then(function(r){ return r.json(); }).then(function(j){ if (j && j.v && j.v !== window.APP_VERSION && location.search.indexOf("v=" + j.v) < 0) location.replace(location.pathname + "?v=" + j.v); }).catch(function(){}); } catch(e) {} })();
 </script>
 <title>El cas del taulell · RA3 La malaltia</title>
-<link rel="stylesheet" href="css/app.css?v=7">
+<link rel="stylesheet" href="css/app.css?v=8">
 </head>
 <body>
 
@@ -24,12 +24,12 @@ window.APP_VERSION = "7";
     <h1 class="ptitle" id="lgTitle" data-i18n="brand">El cas del taulell</h1>
     <p class="lead" data-i18n="lead">Arriba un pacient a la farmàcia. Acompanya'l de la primera pregunta fins al tractament.</p>
     <label class="fl" for="lgEmail" data-i18n="email">Correu de l'institut</label>
-    <input type="email" id="lgEmail" autocomplete="username" inputmode="email" placeholder="nom.cognom@isvh.cat" required>
+    <input type="email" id="lgEmail" autocomplete="username" inputmode="email" placeholder="nom.cognom@…" required>
     <label class="fl" for="lgPass" data-i18n="pass">Contrasenya</label>
     <input type="password" id="lgPass" autocomplete="current-password" required>
     <p class="lgerr" id="lgErr" role="alert"></p>
     <button type="submit" class="btn big" data-i18n="enter">Entra a la farmàcia</button>
-    <p class="small muted" data-i18n="note">Només per a l'alumnat amb correu @isvh.cat. La contrasenya te la dona el professorat.</p>
+    <p class="small muted lgcredit" data-i18n="note">Experiència educativa dissenyada per Rubén Vallejo - FP Sanitària Vall d'Hebron</p>
   </form>
 </section>
 
@@ -41,9 +41,16 @@ window.APP_VERSION = "7";
     <div class="tools">
       <button type="button" class="btn ghost small" id="a11yBtn" aria-expanded="false" aria-controls="a11y">Aa</button>
       <button type="button" class="btn ghost small langBtn">ES</button>
+      <button type="button" class="btn small" id="restart" data-i18n="restart" aria-haspopup="dialog" hidden>Torna a començar</button>
       <span class="who" id="who"></span>
       <button type="button" class="btn ghost small" id="logout" data-i18n="logout">Surt</button>
     </div>
+    <dialog class="rsdlg" id="restartDlg" aria-labelledby="rsTitle" aria-describedby="rsText">
+      <h2 id="rsTitle" data-i18n="rsTitle">Vols tornar a començar?</h2>
+      <p id="rsText" data-i18n="rsText">S'esborraran les teves respostes, la puntuació i l'informe d'aquest navegador. No es podran recuperar.</p>
+      <p class="small muted" data-i18n="rsTip">Abans, comprova que ja has copiat i lliurat l'informe a Classroom.</p>
+      <div class="row"><button type="button" class="btn danger" id="rsYes" data-i18n="rsYes">Sí, esborra-ho i torna a començar</button><button type="button" class="btn ghost" id="rsNo" data-i18n="rsNo">Cancel·la</button></div>
+    </dialog>
     <div class="a11y" id="a11y" hidden role="dialog" aria-label="Opcions d'accessibilitat">
       <h2 data-i18n="a11yTitle">Opcions de lectura</h2>
       <fieldset><legend data-i18n="size">Mida del text</legend><div class="seg">
@@ -51,6 +58,7 @@ window.APP_VERSION = "7";
         <label><input type="radio" name="size" value="l"> <span data-i18n="sL">Gran</span></label>
         <label><input type="radio" name="size" value="xl"> <span data-i18n="sXL">Molt gran</span></label></div></fieldset>
       <fieldset><legend data-i18n="font">Tipus de lletra</legend><div class="seg">
+        <label><input type="radio" name="font" value="montserrat"> <span data-i18n="fM">Clara (Montserrat)</span></label>
         <label><input type="radio" name="font" value="atkinson"> <span data-i18n="fA">Molt llegible</span></label>
         <label><input type="radio" name="font" value="lexend"> <span data-i18n="fL">Lectura fàcil</span></label></div></fieldset>
       <fieldset><legend data-i18n="contrast">Contrast</legend><div class="seg">
@@ -74,20 +82,20 @@ window.APP_VERSION = "7";
 <script src="vendor/three.min.js"></script>
 <script src="vendor/RoomEnvironment.js"></script>
 <script src="vendor/gsap.min.js"></script>
-<script src="js/core.js?v=7"></script>
-<script src="js/tests-info.js?v=7"></script>
-<script src="js/extra/extra-A.js?v=7"></script>
-<script src="js/extra/extra-B.js?v=7"></script>
-<script src="js/extra/extra-C.js?v=7"></script>
-<script src="js/cases.js?v=7"></script>
-<script src="js/i18n/es-shared.js?v=7"></script>
-<script src="js/i18n/es-A.js?v=7"></script>
-<script src="js/i18n/es-B.js?v=7"></script>
-<script src="js/i18n/es-C.js?v=7"></script>
-<script src="js/diabetes.js?v=7"></script>
-<script src="js/scenes.js?v=7"></script>
-<script src="js/stage3d.js?v=7"></script>
-<script src="js/app.js?v=7"></script>
-<script src="js/login.js?v=7"></script>
+<script src="js/core.js?v=8"></script>
+<script src="js/tests-info.js?v=8"></script>
+<script src="js/extra/extra-A.js?v=8"></script>
+<script src="js/extra/extra-B.js?v=8"></script>
+<script src="js/extra/extra-C.js?v=8"></script>
+<script src="js/cases.js?v=8"></script>
+<script src="js/i18n/es-shared.js?v=8"></script>
+<script src="js/i18n/es-A.js?v=8"></script>
+<script src="js/i18n/es-B.js?v=8"></script>
+<script src="js/i18n/es-C.js?v=8"></script>
+<script src="js/diabetes.js?v=8"></script>
+<script src="js/scenes.js?v=8"></script>
+<script src="js/stage3d.js?v=8"></script>
+<script src="js/app.js?v=8"></script>
+<script src="js/login.js?v=8"></script>
 </body>
 </html>
