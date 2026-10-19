@@ -5,7 +5,15 @@
   var login = document.getElementById("login"), app = document.getElementById("app");
   var form = document.getElementById("lgForm"), err = document.getElementById("lgErr");
   applyPrefs();
-  document.getElementById("lgArt").innerHTML = SCENES.technicianArt(); applyStatic();
+  // portada: foto de la tècnica (img/tecnica.webp); si no carrega, la il·lustració SVG
+  (function(){
+    var art = document.getElementById("lgArt"), img = new Image();
+    img.alt = ""; img.className = "lgphoto"; img.decoding = "async";
+    img.onload = function(){ art.textContent = ""; art.classList.add("photo"); art.appendChild(img); };
+    img.onerror = function(){ art.innerHTML = SCENES.technicianArt(); };
+    img.src = "img/tecnica.webp?v=7";
+  })();
+  applyStatic();
   function hex(buf){ return Array.prototype.map.call(new Uint8Array(buf), function(b){ return ("0" + b.toString(16)).slice(-2); }).join(""); }
   function enter(user){
     login.hidden = true; app.hidden = false;

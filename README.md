@@ -31,6 +31,8 @@ El docent pot enganxar el text a `ra3-malaltia/verifica.html` per comprovar que 
 
 Tot el contingut surt dels apunts del RA3 (resum a `docs/ra3-contingut.md`). Disseny i pla: `docs/superpowers/`.
 
+Les imatges de `ra3-malaltia/img/` (portada, carrer de l'aparador i pòsters de les escenes 3D) s'han generat amb IA (Gemini Flash Lite Image a través d'OpenRouter) i s'han retallat i convertit a WebP. Si una imatge no carrega, la portada torna a la il·lustració SVG.
+
 ### Proves
 
 ```bash

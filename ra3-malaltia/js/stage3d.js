@@ -18,6 +18,15 @@
     const c = document.createElement("canvas"); c.width = w; c.height = h; const g = c.getContext("2d"); draw(g, w, h);
     const t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; t.anisotropy = 4; t.userData = {canvas:c, ctx:g, draw}; return t;
   }
+  /* imatges generades (img/*.webp): es carreguen sense bloquejar i es redibuixa quan arriben */
+  const IMG_V = "?v=7";
+  function imgTex(url, onload){ const t = new T.TextureLoader().load(url + IMG_V, onload); t.encoding = T.sRGBEncoding; t.anisotropy = 4; return t; }
+  function poster(ctx, url, w, h, x, y, z, rotY){
+    const {scene, mesh, box, mat} = ctx, g = new T.Group(); g.position.set(x, y, z); g.rotation.y = rotY || 0;
+    g.add(mesh(box(w + .06, h + .06, .03), mat("#f7f5f0", {roughness:.6}), 0, 0, 0, false));
+    g.add(mesh(new T.PlaneGeometry(w, h), new T.MeshStandardMaterial({map:ctx.imgTex(url), roughness:.55}), 0, 0, .017, false));
+    scene.add(g); return g;
+  }
   function labelBox(w, h, d, color, text, sub){
     const tex = canvasTex(256, 160, (g, W, H) => {
       g.fillStyle = color; g.fillRect(0, 0, W, H);
@@ -154,7 +163,7 @@
         camera.lookAt(target);
       }
     }
-    const ctx = {scene, camera, renderer, T, mat, mesh, box, person, agent, labelBox, canvasTex, reduce};
+    const ctx = {scene, camera, renderer, T, mat, mesh, box, person, agent, labelBox, canvasTex, reduce, imgTex:url => imgTex(url, () => { dirty = true; })};
     const built = cfg.build(ctx);
     const pickables = built.pickables || [];
 
@@ -275,8 +284,7 @@
         // rètol, aparador amb llum de carrer, plantes i flascons
         const sign = ctx.canvasTex(512, 96, (g, W, H) => { g.fillStyle = "#0b6e4b"; g.fillRect(0, 0, W, H); g.fillStyle = "#ffffff"; g.font = "bold 58px sans-serif"; g.textAlign = "center"; g.fillText(opts.signText || "FARMÀCIA", W / 2, 70); });
         scene.add(mesh(new T.PlaneGeometry(2.2, .42), new T.MeshStandardMaterial({map:sign, emissive:"#ffffff", emissiveMap:sign, emissiveIntensity:.35}), -.6, 2.72, -3.13, false));
-        const street = ctx.canvasTex(256, 256, (g, W, H) => { const gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, "#bfe3ff"); gr.addColorStop(.65, "#eaf6ff"); gr.addColorStop(.66, "#c9c2b6"); gr.addColorStop(1, "#a9a39a"); g.fillStyle = gr; g.fillRect(0, 0, W, H);
-          g.fillStyle = "rgba(90,120,100,.5)"; [30, 110, 190].forEach(x => { g.fillRect(x, 90, 34, 80); g.beginPath(); g.arc(x + 17, 80, 34, 0, Math.PI * 2); g.fill(); }); });
+        const street = ctx.imgTex("img/street.webp");
         [-1, 1].forEach(sd => { const w = mesh(new T.PlaneGeometry(2.4, 2.1), new T.MeshBasicMaterial({map:street}), sd * 4.44, 1.45, -1.2, false); w.rotation.y = -sd * Math.PI / 2; scene.add(w);
           scene.add(mesh(box(.06, 2.2, 2.5), new T.MeshStandardMaterial({color:"#dff3ff", transparent:true, opacity:.18, roughness:.05, metalness:.1}), sd * 4.4, 1.45, -1.2, false)); });
         const plant = (x, z) => { const pl = new T.Group(); pl.position.set(x, 0, z);
@@ -284,6 +292,7 @@
           [[0, .6, 0, .2], [.12, .5, .06, .15], [-.12, .52, -.04, .16], [0, .78, .05, .13]].forEach(([a, b, c, r]) => pl.add(mesh(new T.SphereGeometry(r, 16, 12), mat("#4f9a5b", {roughness:.8}), a, b, c)));
           scene.add(pl); };
         plant(-3.6, -2.6); plant(3.6, -2.6);
+        poster(ctx, "img/poster-salut.webp", .42, 1.34, -4.43, 1.6, -2.85, Math.PI / 2);
         for (let i = 0; i < 9; i++){ const bt = mesh(new T.CylinderGeometry(.045, .05, .2, 16), new T.MeshStandardMaterial({color:["#8fd3b6", "#f2b880", "#c7a5e6", "#86b5f0"][i % 4], roughness:.15, metalness:0, transparent:true, opacity:.9}), -3 + i * .7, 2.47, -3.1); scene.add(bt); }
         // creu verda lluminosa
         const cross = new T.Group(); cross.position.set(2.3, 2.3, -3.12);
@@ -322,6 +331,7 @@
       build(ctx){
         const {scene, mesh, box, mat} = ctx;
         room(ctx, {floor:"#cfd6e2", wall:"#eef3fb", back:-2});
+        poster(ctx, "img/microbis.webp", .6, .95, 0, 1.48, -1.94);
         scene.add(mesh(box(2.4, .06, .8), mat("#f4f6f8", {roughness:.3}), 0, .9, 0));
         [[-1.1, -.35], [1.1, -.35], [-1.1, .35], [1.1, .35]].forEach(([x, z]) => scene.add(mesh(box(.06, .9, .06), mat("#7b8a99", {metalness:.5, roughness:.4}), x, .45, z)));
         // microscopi
@@ -368,6 +378,7 @@
       build(ctx){
         const {scene, mesh, box, mat} = ctx;
         room(ctx, {floor:"#d6dee8", wall:"#f3f6fa", back:-2.5, side:3.5});
+        poster(ctx, "img/anatomia.webp", .78, 1.16, .8, 1.75, -2.44);
         // llitera, taula i doctora
         const bed = new T.Group(); bed.position.set(1.6, 0, -1.4);
         bed.add(mesh(box(1.9, .12, .7), mat("#9cc7b7"), 0, .7, 0), mesh(box(.5, .08, .6), mat("#ffffff"), -.65, .8, 0));
